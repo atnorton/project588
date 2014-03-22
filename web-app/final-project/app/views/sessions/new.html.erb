@@ -1,0 +1,12 @@
+<% provide(:title, "Log In") %>
+<div class="row parent">
+  <div class="login">
+    <h1>Log In</h2>
+    <%= form_for(:session, url: sessions_path) do |sessionForm| %>
+      <div class="field">
+      <%= sessionForm.text_field :email, placeholder: "Email" %>
+      </div>
+      <%= sessionForm.submit "Log In", class: "btn btn-large btn-primary" %>
+    <% end %>
+  </div>
+</div>
