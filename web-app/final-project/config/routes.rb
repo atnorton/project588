@@ -1,6 +1,7 @@
 FinalProject::Application.routes.draw do
   resources :users
 
+  get 'sessions/waitForLogin' => 'sessions#waitForLogin'
   resources :sessions
 
   delete 'sessions' => 'sessions#destroy'

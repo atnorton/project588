@@ -39,6 +39,10 @@ class SessionsController < ApplicationController
     @email_token = email_token_s
   end
 
+  def waitForLogin
+    render :json => { :result => signed_in? }
+  end
+
   def index
   end
 

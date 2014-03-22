@@ -1,5 +1,17 @@
 <%= qr_code(@user_token) %>
-
+<script>
+(function waitForLogin() {
+  setTimeout(function()
+    {
+      $.get("/sessions/waitForLogin").done(function(data) {
+          if(data.result==true)
+            window.location = '/'
+          else
+            waitForLogin()
+        }).error(function(data) { waitForLogin() })
+    }, 1000)
+})()
+</script>
 <div>
   <h2>For Debugging Only</h2>
   <%= form_for(:login, url: '/authenticate') do |sessionForm| %>
