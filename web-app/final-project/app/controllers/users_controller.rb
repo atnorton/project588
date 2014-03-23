@@ -8,6 +8,13 @@ class UsersController < ApplicationController
     @cur_user = current_user
   end
 
+  def twofactor
+    @user = current_user
+    if(@user.auth_secret.nil?)
+      @user.assign_auth_secret
+    end
+  end
+
   # GET /users/1
   # GET /users/1.json
   def show

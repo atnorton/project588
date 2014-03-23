@@ -12,10 +12,18 @@ module SessionsHelper
     cookies.delete(:session_id)
   end
 
-  def log_in(user_token, email_token)
+  def validate_twofactor(user, code)
+    return code == ROTP::TOTP.new(user.auth_secret).now.to_s
+  end
+
+  def log_in(user_token, email_token, validation_code)
     session_key = Session.encrypt(user_token)
     session = Session.where(created_at: (Time.now - 5.minutes)..Time.now).find_by(session_key: session_key)
-    if session==nil || session.logged_in
+    if session==nil || session.logged_in || session.user.nil?
+      return false
+    end
+
+    if(!session.user.auth_secret.nil? && !validate_twofactor(session.user, validation_code))
       return false
     end
 
@@ -37,6 +45,14 @@ module SessionsHelper
 
   def current_user=(user)
     @current_user = user
+  end
+
+  def get_user(user_token)
+    session_key = Session.encrypt(cookies.permanent[:session_id])
+    session = Session.find_by(session_key: session_key)
+    if(!session.nil?)
+      return session.user
+    end
   end
 
   def current_user

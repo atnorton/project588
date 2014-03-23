@@ -1,4 +1,5 @@
 FinalProject::Application.routes.draw do
+  get 'users/:id/twofactor' => 'users#twofactor'
   resources :users
 
   get 'sessions/waitForLogin' => 'sessions#waitForLogin'

@@ -1,0 +1,11 @@
+<div>
+  <%= form_for(:login, url: '/authenticate') do |sessionForm| %>
+    <%= sessionForm.hidden_field :email_token, value: @email_token %>
+    <%= sessionForm.hidden_field :user_token, value: @user_token %>
+
+    <%= sessionForm.label :validation_code %>
+    <%= sessionForm.text_field :validation_code %>
+
+    <%= sessionForm.submit "Log In" %>
+  <% end %>
+</div>

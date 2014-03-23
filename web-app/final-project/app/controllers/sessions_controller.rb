@@ -47,14 +47,22 @@ class SessionsController < ApplicationController
   end
 
   def authenticate
-    user_token = cookies.permanent[:session_id]
     if request.post?
+      user_token = params[:login][:user_token]
       email_token = params[:login][:email_token]
+      validation_code = params[:login][:validation_code]
     else
+      user_token = cookies.permanent[:session_id]
+      @user = get_user(user_token)
       email_token = params[:email_token]
+      if(!@user.auth_secret.nil?)
+        @email_token = email_token
+        @user_token = user_token
+        return
+      end
     end
 
-    if log_in(user_token, email_token)
+    if log_in(user_token, email_token, validation_code)
       redirect_to current_user 
     else
       redirect_to :new_session

@@ -10,6 +10,10 @@
   <%= @user.email %>
 </p>
 
+<p>
+<%= link_to ((@user.auth_secret.nil?)? "Add " : "View ") + " two factor authentication", user_path + '/twofactor' %> 
+</p>
+
 <% if logged_in?(@user) %>
 <%= link_to 'Edit', edit_user_path(@user) %> |
 <% end %>
