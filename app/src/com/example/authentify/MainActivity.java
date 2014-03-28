@@ -18,6 +18,7 @@ public class MainActivity extends Activity {
         
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         String username = settings.getString("uname", "");
+        Log.v("Mystuff", "UNAME: "+username);
         if(username.equals("")) {
         	Intent intent = new Intent(this, Settings.class);
 			startActivity(intent);
