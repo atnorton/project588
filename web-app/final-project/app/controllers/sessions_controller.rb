@@ -11,7 +11,7 @@ class SessionsController < ApplicationController
   end
 
   def destroy
-    log_out()
+    log_out
     redirect_to :new_session
   end
 
@@ -22,21 +22,13 @@ class SessionsController < ApplicationController
       @user.save
     end
 
-    complete_token = SecureRandom.random_bytes(16)
-    complete_token_s = Base64.urlsafe_encode64(complete_token)
-    email_token = SecureRandom.random_bytes(16)
-    email_token_s = Base64.urlsafe_encode64(email_token)
+    @user_token, @email_token, complete_token = EmailAuth.generateTokens
 
-    user_token_s = Base64.urlsafe_encode64(complete_token.unpack('C*').zip(email_token.unpack('C*')).map{ |a,b| a ^ b }.pack('C*'))
-    @user_token = user_token_s
-
-    @session = Session.new(:user => @user, :session_key => Session.encrypt(user_token_s), :auth_token => complete_token_s)
-    @session.save
+    @session = Session.new(:user => @user, :session_key => Session.encrypt(@user_token), :auth_token => complete_token)
+    @session.save!
     cookies.permanent[:session_id] = @user_token
-    
-    AuthMailer.auth_email(params[:session][:email].downcase, email_token_s).deliver
-
-    @email_token = email_token_s
+   
+    AuthMailer.auth_email(params[:session][:email].downcase, @email_token).deliver
   end
 
   def waitForLogin

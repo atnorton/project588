@@ -12,10 +12,6 @@ module SessionsHelper
     cookies.delete(:session_id)
   end
 
-  def validate_twofactor(user, code)
-    return code == ROTP::TOTP.new(user.auth_secret).now.to_s
-  end
-
   def log_in(user_token, email_token, validation_code)
     session_key = Session.encrypt(user_token)
     session = Session.where(created_at: (Time.now - 5.minutes)..Time.now).find_by(session_key: session_key)
@@ -24,7 +20,7 @@ module SessionsHelper
     end
 
     if(!session.user.auth_secret.nil? && !validate_twofactor(session.user, validation_code))
-      return false
+      return true
     end
 
     begin
@@ -41,6 +37,10 @@ module SessionsHelper
     rescue
       return false
     end
+  end
+
+  def validate_twofactor(user, code)
+    EmailAuth.validateTOTP(user.auth_secret, code)
   end
 
   def current_user=(user)

@@ -37,6 +37,8 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.7.0)
+    emailauth (0.0.1)
+      rotp
     erubis (2.7.0)
     execjs (2.0.2)
     hike (1.2.3)
@@ -114,10 +116,10 @@ PLATFORMS
 DEPENDENCIES
   bootstrap-sass (~> 3.1.1.0)
   coffee-rails (~> 4.0.0)
+  emailauth
   jbuilder (~> 1.2)
   jquery-rails
   rails (= 4.0.2)
-  rotp
   sass-rails (~> 4.0.0)
   sdoc
   sqlite3

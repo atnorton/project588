@@ -10,7 +10,7 @@ FinalProject::Application.routes.draw do
   post 'authenticate', to: 'sessions#authenticate'
   get 'authenticate/:email_token' => 'sessions#authenticate'
 
-  root to: "sessions#root"
+  root to: 'sessions#root'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
