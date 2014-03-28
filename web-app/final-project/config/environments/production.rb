@@ -1,4 +1,16 @@
 FinalProject::Application.configure do
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address:              'smtp-mail.outlook.com',
+    port:                 587,
+    domain:               'example.com',
+    user_name:            'send.auth@outlook.com',
+    password:             'eecs588project',
+    authentication:       'plain',
+    enable_starttls_auto: true }
+
+  config.force_ssl = true
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Code is not reloaded between requests.
