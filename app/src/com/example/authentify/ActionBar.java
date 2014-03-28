@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,6 +42,7 @@ public class ActionBar extends ActionBarActivity {
 		// as you specify a parent activity in AndroidManifest.xml.
 		
 		int id = item.getItemId();
+		Log.v("MyActivity", "ID: "+id);
 		if (id == R.id.action_settings) {
 			
 			Intent intent = new Intent(this, Settings.class);

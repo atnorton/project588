@@ -1,6 +1,7 @@
 package com.example.authentify;
 
 import java.io.IOException;
+import java.security.NoSuchProviderException;
 import java.util.Date;
 import java.util.Properties;
 
@@ -8,20 +9,19 @@ import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
-import javax.mail.NoSuchProviderException;
 import javax.mail.Part;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.event.MessageCountEvent;
 import javax.mail.event.MessageCountListener;
 
-import com.sun.mail.imap.IMAPFolder;
-
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.sun.mail.imap.IMAPFolder;
 
 public class EmailRetreiver extends IntentService implements MessageCountListener{
 
@@ -67,8 +67,10 @@ public class EmailRetreiver extends IntentService implements MessageCountListene
 			store = session.getStore("imaps");
 			
 			// **** THESE VALUES MUST BE REPLACED WITH USER INPUT ****
-			String username = getString(R.string.username);
-			String passwd = getString(R.string.passwd);
+			//String username = getString(R.string.username);
+			//String passwd = getString(R.string.passwd);
+			String username = "username";
+			String passwd = "passwd";
 			store.connect("imap.gmail.com", username, passwd);
 			inbox = store.getFolder("Inbox");
 			inbox.open(Folder.READ_ONLY);
@@ -88,8 +90,6 @@ public class EmailRetreiver extends IntentService implements MessageCountListene
 			
 			// Idle the IMAPFolder
 			startIdle();
-		} catch (NoSuchProviderException e) {
-			e.printStackTrace();
 		} catch (MessagingException e) {
 			e.printStackTrace();
 		}
