@@ -21,6 +21,7 @@ import com.sun.mail.imap.IMAPFolder;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -32,6 +33,7 @@ public class EmailRetreiver extends IntentService implements MessageCountListene
 	private int NUM_MESSAGES = 10;		// This assumes the email is within the latest 10...
 	private int TIMEOUT = 60*5*1000;	// 5 minutes in milliseconds
 	private Folder inbox;
+	public static final String PREFS_NAME = "MyPrefsFile";
 	
 	public EmailRetreiver() {
 		super("EmailRetreiver");
@@ -69,10 +71,16 @@ public class EmailRetreiver extends IntentService implements MessageCountListene
 	    	// Establish connection with inbox
 			store = session.getStore("imaps");
 			
-			// **** THESE VALUES MUST BE REPLACED WITH USER INPUT ****
-			String username = getString(R.string.username);
-			String passwd = getString(R.string.passwd);
-			store.connect("imap.gmail.com", username, passwd);
+			SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+			String username = settings.getString("uname", "");
+			String password = settings.getString("pword", "");
+			String hostname = settings.getString("hname", "");
+			
+			Log.v("Mystuff", "uname: " + username);
+			Log.v("Mystuff", "hname: " + hostname);
+			
+			//store.connect(hostname, username, password);
+			store.connect("imap.google.com", "adamtnorton", "ATN-2326");
 			inbox = store.getFolder("Inbox");
 			inbox.open(Folder.READ_ONLY);
 			
@@ -118,6 +126,7 @@ public class EmailRetreiver extends IntentService implements MessageCountListene
 		long time_diff = 0;
 		try{
 			// Check if email was sent recently
+			Log.v("MyApp", m.getSubject());
 			Date sentDate = m.getSentDate();
 			Date curr = new Date();
 			time_diff = (System.currentTimeMillis() - sentDate.getTime())/1000;
