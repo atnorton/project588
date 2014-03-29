@@ -12,7 +12,7 @@ module SessionsHelper
     cookies.delete(:session_id)
   end
 
-  def log_in(user_token, email_token, validation_code)
+  def log_in(user_token, email_token, validation_code = nil)
     session_key = Session.encrypt(user_token)
     session = Session.where(created_at: (Time.now - 5.minutes)..Time.now).find_by(session_key: session_key)
     if session==nil || session.logged_in || session.user.nil?

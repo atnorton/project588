@@ -1,4 +1,6 @@
 class SessionsController < ApplicationController
+  protect_from_forgery :except => [:authenticate]
+
   def new
   end
 
@@ -43,6 +45,12 @@ class SessionsController < ApplicationController
       user_token = params[:login][:user_token]
       email_token = params[:login][:email_token]
       validation_code = params[:login][:validation_code]
+
+      if log_in(user_token, email_token, validation_code)
+        return render json: "success" 
+      else
+        return render json: "failure" 
+      end
     else
       user_token = cookies.permanent[:session_id]
       @user = get_user(user_token)
@@ -52,12 +60,12 @@ class SessionsController < ApplicationController
         @user_token = user_token
         return
       end
-    end
 
-    if log_in(user_token, email_token, validation_code)
-      redirect_to current_user 
-    else
-      redirect_to :new_session
+      if log_in(user_token, email_token)
+        redirect_to current_user 
+      else
+        redirect_to :new_session
+      end
     end
   end
 end
