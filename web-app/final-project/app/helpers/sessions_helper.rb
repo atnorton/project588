@@ -20,7 +20,7 @@ module SessionsHelper
     end
 
     if(!session.user.auth_secret.nil? && !validate_twofactor(session.user, validation_code))
-      return true
+      return false
     end
 
     begin
