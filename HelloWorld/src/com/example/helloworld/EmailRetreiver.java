@@ -79,8 +79,7 @@ public class EmailRetreiver extends IntentService implements MessageCountListene
 			Log.v("Mystuff", "uname: " + username);
 			Log.v("Mystuff", "hname: " + hostname);
 			
-			//store.connect(hostname, username, password);
-			store.connect("imap.google.com", "adamtnorton", "ATN-2326");
+			store.connect(hostname, username, password);
 			inbox = store.getFolder("Inbox");
 			inbox.open(Folder.READ_ONLY);
 			
