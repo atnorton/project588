@@ -1082,6 +1082,8 @@ containing a value of this type.
         public static final int abc_textfield_searchview_right_holo_dark=0x7f020055;
         public static final int abc_textfield_searchview_right_holo_light=0x7f020056;
         public static final int ic_launcher=0x7f020057;
+        public static final int security=0x7f020058;
+        public static final int settings=0x7f020059;
     }
     public static final class id {
         public static final int ScanButton=0x7f050043;
@@ -1265,15 +1267,16 @@ containing a value of this type.
         public static final int default_text=0x7f0a0016;
         public static final int edit_message=0x7f0a000e;
         public static final int hello_world=0x7f0a0013;
-        public static final int hostname=0x7f0a001a;
-        public static final int password=0x7f0a0019;
-        public static final int title_activity_action_bar=0x7f0a001b;
+        public static final int hostname=0x7f0a001b;
+        public static final int password=0x7f0a001a;
+        public static final int settings_description=0x7f0a0018;
+        public static final int title_activity_action_bar=0x7f0a001c;
         public static final int title_activity_display_message=0x7f0a0012;
         public static final int title_activity_main=0x7f0a0011;
         public static final int title_activity_main_tab=0x7f0a0015;
         public static final int title_activity_settings=0x7f0a0017;
         public static final int title_activity_tab=0x7f0a0014;
-        public static final int username=0x7f0a0018;
+        public static final int username=0x7f0a0019;
     }
     public static final class style {
         /** 
