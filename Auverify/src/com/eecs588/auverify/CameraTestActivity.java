@@ -20,7 +20,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
-import com.example.helloworld.R;
+import com.eecs588.auverify.R;
 
 import net.sourceforge.zbar.Config;
 import net.sourceforge.zbar.Image;
@@ -62,16 +62,17 @@ public class CameraTestActivity extends Activity
     } 
     
     public class sendPOSTThread implements Runnable {
-    	private String email_token, qr_token;
-    	public sendPOSTThread(String email_token_, String qr_token_) {
-    		email_token = email_token_;
-    	    qr_token = qr_token_;
+    	private String address, email_token, qr_token;
+    	public sendPOSTThread(String address, String email_token, String qr_token) {
+    		this.address = address;
+    		this.email_token = email_token;
+    	    this.qr_token = qr_token;
     	}
 
     	public void run() {
     		// Create a new HttpClient and Post Header
             HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httppost = new HttpPost("https://www.authdemo.com/authenticate");
+            HttpPost httppost = new HttpPost(address);
 
             try {
                 // Add your data
@@ -188,8 +189,9 @@ public class CameraTestActivity extends Activity
                         scanText.setText("barcode result " + qr_data);
                         Bundle b = getIntent().getExtras();
                         String email_token = b.getString("token");
+                        String address = b.getString("address");
                         email_token = email_token.substring(0, email_token.length() - 2);
-                        Runnable r = new sendPOSTThread(email_token, qr_data);
+                        Runnable r = new sendPOSTThread(address, email_token, qr_data);
                         new Thread(r).start();
                         barcodeScanned = true;
                     }

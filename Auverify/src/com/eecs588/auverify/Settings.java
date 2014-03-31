@@ -1,6 +1,6 @@
 package com.eecs588.auverify;
 
-import com.example.helloworld.R;
+import com.eecs588.auverify.R;
 
 import android.support.v4.app.Fragment;
 import android.content.SharedPreferences;
@@ -12,9 +12,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-
-
-
 
 public class Settings extends ActionBarActivity {
 	public static final String PREFS_NAME = "MyPrefsFile";

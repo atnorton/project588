@@ -128,6 +128,7 @@ public class EmailRetreiver extends IntentService implements
 		long time_diff = 0;
 		try {
 			// Check if email was sent recently
+
 			Log.v("MyApp", m.getSubject());
 			Date sentDate = m.getSentDate();
 			//Date curr = new Date();
@@ -148,18 +149,22 @@ public class EmailRetreiver extends IntentService implements
 				return time_diff;
 			}
 			String link = body.substring(idx).split(" ")[0];
-			String token = link.substring(link.indexOf("authenticate/") + 13);
+			String token = link.substring(link.lastIndexOf("/") + 1);
+			String address = link.substring(0, link.lastIndexOf("/"));
 			Log.d("MyApp", "Got email token: " + token);
+			
 			Intent dialogIntent = new Intent(getBaseContext(),
 					CameraTestActivity.class);
+			
 			Bundle b = new Bundle();
 			b.putString("token", token);
+			b.putString("address", address);
 			dialogIntent.putExtras(b);
 			dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			getApplication().startActivity(dialogIntent);
 		} catch (Exception e) {
 			e.printStackTrace();
-			// If there is an exception, ignore the message
+
 			return Long.MAX_VALUE;
 		}
 		return time_diff;
