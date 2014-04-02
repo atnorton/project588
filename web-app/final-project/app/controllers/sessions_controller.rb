@@ -47,7 +47,11 @@ class SessionsController < ApplicationController
       validation_code = params[:login][:validation_code]
 
       if log_in(user_token, email_token, validation_code)
-        return render json: "success" 
+        if !cookies.permanent[:session_id].nil?
+          redirect_to current_user 
+        else
+          return render json: "success" 
+        end
       else
         return render json: "failure" 
       end

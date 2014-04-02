@@ -17,6 +17,11 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        Intent i = getIntent();
+        if(i!=null && i.getData()!=null) {
+        	Log.v("Auverify", "path: " + i.getData().getPath());
+        }
+        
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         String username = settings.getString("uname", "");
         Log.v("MyApp", "UNAME_create: "+username);

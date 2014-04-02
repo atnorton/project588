@@ -4,6 +4,10 @@ module SessionsHelper
     image_tag(qr_url, class: "center")
   end
 
+  def mobile_user_agent?
+    request.env["HTTP_USER_AGENT"].try :match, /(android)/i
+  end
+
   def log_out
     session_key = Session.encrypt(cookies.permanent[:session_id])
     session = Session.find_by(session_key: session_key)
@@ -19,6 +23,7 @@ module SessionsHelper
       return false
     end
 
+    # If we fail two factor authentication, return false
     if(!session.user.auth_secret.nil? && !validate_twofactor(session.user, validation_code))
       return false
     end

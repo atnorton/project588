@@ -1,4 +1,9 @@
 <%= qr_code(@user_token) %>
+
+<% if mobile_user_agent? %>
+  <a href="http://auverify.com/sendToApp/<%= @user_token %>">Send To Auverify</a>
+<% end %>
+
 <script>
 (function waitForLogin() {
   setTimeout(function()
