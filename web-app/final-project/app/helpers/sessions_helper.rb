@@ -9,10 +9,11 @@ module SessionsHelper
   end
 
   def log_out
-    session_key = Session.encrypt(cookies.permanent[:session_id])
-    session = Session.find_by(session_key: session_key)
+    session_id_key = Session.encrypt(cookies.permanent[:session_id])
+    session = Session.find_by(session_id: session_id_key)
     session.delete
     session.save
+    cookies.delete(:user_token)
     cookies.delete(:session_id)
   end
 
@@ -34,7 +35,6 @@ module SessionsHelper
           session.logged_in = true
           session.save!
           if session.authenticate(user_token, email_token)
-            current_user = session.user
             return true
           end
         end
@@ -48,12 +48,8 @@ module SessionsHelper
     EmailAuth.validateTOTP(user.auth_secret, code)
   end
 
-  def current_user=(user)
-    @current_user = user
-  end
-
   def get_user(user_token)
-    session_key = Session.encrypt(cookies.permanent[:session_id])
+    session_key = Session.encrypt(cookies.permanent[:user_token])
     session = Session.find_by(session_key: session_key)
     if(!session.nil?)
       return session.user
@@ -64,8 +60,8 @@ module SessionsHelper
     if cookies.permanent[:session_id]==nil
       return nil
     end
-    session_key = Session.encrypt(cookies.permanent[:session_id])
-    session = Session.find_by(session_key: session_key)
+    session_id_key = Session.encrypt(cookies.permanent[:session_id])
+    session = Session.find_by(session_id: session_id_key)
     if session!=nil && session.logged_in && session.user!=nil
       @current_user = session.user
     else

@@ -24,11 +24,14 @@ class SessionsController < ApplicationController
       @user.save
     end
 
-    @user_token, @email_token, complete_token = EmailAuth.generateTokens
+    @user_token, @email_token, complete_token = EmailAuth.generateTokens(32)
 
-    @session = Session.new(:user => @user, :session_key => Session.encrypt(@user_token), :auth_token => complete_token)
+    session_id = Session.generateSessionId
+
+    @session = Session.new(:user => @user, :session_id => Session.encrypt(session_id), :session_key => Session.encrypt(@user_token), :auth_token => complete_token)
     @session.save!
-    cookies.permanent[:session_id] = @user_token
+    cookies.permanent[:user_token] = @user_token
+    cookies.permanent[:session_id] = session_id
    
     AuthMailer.auth_email(params[:session][:email].downcase, @email_token).deliver
   end
@@ -47,8 +50,8 @@ class SessionsController < ApplicationController
       validation_code = params[:login][:validation_code]
 
       if log_in(user_token, email_token, validation_code)
-        if !cookies.permanent[:session_id].nil?
-          redirect_to current_user 
+        if !cookies.permanent[:session_id].nil? && !current_user.nil?
+          redirect_to current_user
         else
           return render json: "success" 
         end
@@ -56,7 +59,7 @@ class SessionsController < ApplicationController
         return render json: "failure" 
       end
     else
-      user_token = cookies.permanent[:session_id]
+      user_token = cookies.permanent[:user_token]
       @user = get_user(user_token)
       email_token = params[:email_token]
       if(!@user.auth_secret.nil?)
@@ -65,7 +68,7 @@ class SessionsController < ApplicationController
         return
       end
 
-      if log_in(user_token, email_token)
+      if log_in(user_token, email_token) && !current_user.nil?
         redirect_to current_user 
       else
         redirect_to :new_session

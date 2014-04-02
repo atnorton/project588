@@ -8,4 +8,8 @@ class Session < ActiveRecord::Base
   def Session.encrypt(token)
     Digest::SHA1.hexdigest(token.to_s)
   end
+
+  def Session.generateSessionId
+    SecureRandom.urlsafe_base64(32)
+  end
 end
