@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.eecs588.auverify.R;
+import com.google.android.apps.authenticator.TOTPUtility;
 
 public class MainActivity extends Activity {
 	public class ReceiveMessages extends BroadcastReceiver 
@@ -43,7 +44,14 @@ public class MainActivity extends Activity {
         if(i!=null && i.getData()!=null) {
         	Log.v("Auverify", "path: " + i.getData().getPath());
         }
+        final String secret = "p3im76r6cu3kb32k";
         
+        try {
+			Log.v("Auverify", "code: " + TOTPUtility.getCurrentCode(secret));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         String username = settings.getString("uname", "");
         Log.v("MyApp", "UNAME_create: "+username);
