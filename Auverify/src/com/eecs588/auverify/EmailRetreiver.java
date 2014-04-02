@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Properties;
 
+import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -16,6 +17,7 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.event.MessageCountEvent;
 import javax.mail.event.MessageCountListener;
+import javax.mail.internet.MimeMessage;
 
 import com.sun.mail.imap.IMAPFolder;
 
@@ -81,7 +83,7 @@ public class EmailRetreiver extends IntentService implements
 
 			store.connect(hostname, username, password);
 			inbox = store.getFolder("Inbox");
-			inbox.open(Folder.READ_ONLY);
+			inbox.open(Folder.READ_WRITE);
 
 			// Get most recent messages
 			int num_msgs = inbox.getMessageCount();
@@ -128,7 +130,6 @@ public class EmailRetreiver extends IntentService implements
 		long time_diff = 0;
 		try {
 			// Check if email was sent recently
-
 			Log.v("MyApp", m.getSubject());
 			Date sentDate = m.getSentDate();
 			//Date curr = new Date();
@@ -140,6 +141,11 @@ public class EmailRetreiver extends IntentService implements
 
 			// Check if the subject is correct
 			if (!m.getSubject().equals("Log in request"))
+				return time_diff;
+			
+			// Check if the email is already seen
+			Flags flags = m.getFlags();
+			if (flags.contains(Flags.Flag.SEEN))
 				return time_diff;
 
 			// Extract and display the link
@@ -153,10 +159,15 @@ public class EmailRetreiver extends IntentService implements
 			String address = link.substring(0, link.lastIndexOf("/"));
 			Log.d("MyApp", "Got email token: " + token);
 			
+			inbox.setFlags(new Message[] {m}, new Flags(Flags.Flag.SEEN), true);
+			
 			Intent dialogIntent = new Intent(getBaseContext(),
-					CameraTestActivity.class);
+					LoginConfirmationActivity.class);
 			
 			Bundle b = new Bundle();
+			String server = m.getFrom()[0].toString();
+			server = server.substring(0, server.indexOf("<"));
+			b.putString("server", server);
 			b.putString("token", token);
 			b.putString("address", address);
 			dialogIntent.putExtras(b);

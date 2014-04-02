@@ -1,0 +1,41 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".LoginConfirmation" >
+    
+    <TextView
+        android:id="@+id/confirmation_text"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:textSize="30dp"
+        android:text="conf_text"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+    />
+    
+       <Button
+       android:layout_width="match_parent"
+       android:layout_height="50dp"
+       android:layout_marginTop="150dp"
+       android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+       android:gravity="center"
+       android:onClick="goToCamera"
+       android:text="Yes, log me in!" />	
+       
+       <Button
+       android:layout_width="match_parent"
+       android:layout_height="50dp"
+       android:layout_marginTop="30dp"
+       android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+       android:gravity="center"
+       android:onClick="goToMain"
+       android:text="No" />
+       
+</LinearLayout>
