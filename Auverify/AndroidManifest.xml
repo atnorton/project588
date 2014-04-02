@@ -38,7 +38,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ActionBarActivity" />
         </activity>
-        
+        <activity
+            android:name="com.eecs588.auverify.LoginConfirmationActivity"
+            android:label="@string/title_activity_login_confirmation" >
+        </activity>
+        <activity
+            android:name="com.eecs588.auverify.POSTActivity" >
+        </activity>
     </application>
 
 </manifest>

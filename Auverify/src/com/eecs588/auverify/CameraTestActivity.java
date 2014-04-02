@@ -28,6 +28,7 @@ import net.sourceforge.zbar.ImageScanner;
 import net.sourceforge.zbar.Symbol;
 import net.sourceforge.zbar.SymbolSet;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
@@ -60,44 +61,6 @@ public class CameraTestActivity extends Activity
     static {
         System.loadLibrary("iconv");
     } 
-    
-    public class sendPOSTThread implements Runnable {
-    	private String address, email_token, qr_token;
-    	public sendPOSTThread(String address, String email_token, String qr_token) {
-    		this.address = address;
-    		this.email_token = email_token;
-    	    this.qr_token = qr_token;
-    	}
-
-    	public void run() {
-    		// Create a new HttpClient and Post Header
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httppost = new HttpPost(address);
-
-            try {
-                // Add your data
-                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-                nameValuePairs.add(new BasicNameValuePair("login[email_token]", email_token));
-                nameValuePairs.add(new BasicNameValuePair("login[user_token]", qr_token));
-                httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
-                // Execute HTTP Post Request
-                HttpResponse response = httpclient.execute(httppost);
-                String post = EntityUtils.toString(httppost.getEntity());
-                Log.d("MyApp", "Sending post: " + post);
-                Log.d("MyApp", "Sent POST!");
-                String result = EntityUtils.toString(response.getEntity());
-                if (result != null)
-                	Log.d("MyApp", "Response: " + result);
-                else
-                	Log.d("MyApp", "No response");
-            } catch (ClientProtocolException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-    	}
-	}
 	
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,7 +82,8 @@ public class CameraTestActivity extends Activity
         preview.addView(mPreview);
 
         scanText = (TextView)findViewById(R.id.scanText);
-
+        scanText.setText("Aim your camera at the QR code!");
+        
         scanButton = (Button)findViewById(R.id.ScanButton);
 
         scanButton.setOnClickListener(new OnClickListener() {
@@ -186,14 +150,19 @@ public class CameraTestActivity extends Activity
                     for (Symbol sym : syms) {
                     	String qr_data = sym.getData();
                     	Log.d("MyApp", "Got QR token: " + qr_data);
-                        scanText.setText("barcode result " + qr_data);
                         Bundle b = getIntent().getExtras();
                         String email_token = b.getString("token");
                         String address = b.getString("address");
                         email_token = email_token.substring(0, email_token.length() - 2);
-                        Runnable r = new sendPOSTThread(address, email_token, qr_data);
-                        new Thread(r).start();
                         barcodeScanned = true;
+                        
+                        // Start POST Activity
+                        Intent myIntent = new Intent(CameraTestActivity.this, POSTActivity.class);
+                		Bundle bundle = getIntent().getExtras();
+                		myIntent.putExtra("token", email_token);
+                		myIntent.putExtra("address", address);
+                		myIntent.putExtra("qr_data", qr_data);
+                		CameraTestActivity.this.startActivity(myIntent);
                     }
                 }
             }
