@@ -153,6 +153,7 @@ public class CameraTestActivity extends Activity
                         Bundle b = getIntent().getExtras();
                         String email_token = b.getString("token");
                         String address = b.getString("address");
+                        String host = b.getString("host");
                         email_token = email_token.substring(0, email_token.length() - 2);
                         barcodeScanned = true;
                         
@@ -162,6 +163,7 @@ public class CameraTestActivity extends Activity
                 		myIntent.putExtra("token", email_token);
                 		myIntent.putExtra("address", address);
                 		myIntent.putExtra("qr_data", qr_data);
+                		myIntent.putExtra("host", host);
                 		CameraTestActivity.this.startActivity(myIntent);
                     }
                 }

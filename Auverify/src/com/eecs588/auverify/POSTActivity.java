@@ -14,8 +14,11 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
+import com.google.android.apps.authenticator.TOTPUtility;
+
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -53,26 +56,39 @@ public class POSTActivity extends Activity {
             HttpPost httppost = new HttpPost(address);
 
             try {
+            	Bundle bundle = getIntent().getExtras();
+            	String host = bundle.getString("host");
+            	String prefs_name = getString(R.string.prefs_name);
+				SharedPreferences settings = getSharedPreferences(prefs_name, MODE_PRIVATE);
+			    SharedPreferences.Editor prefEditor = settings.edit();
+			    String shared_secret = settings.getString(host, null);
+			    
                 // Add your data
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
                 nameValuePairs.add(new BasicNameValuePair("login[email_token]", email_token));
                 nameValuePairs.add(new BasicNameValuePair("login[user_token]", qr_token));
+                if (shared_secret != null){
+                	String curr_code = TOTPUtility.getCurrentCode(shared_secret);
+                	nameValuePairs.add(new BasicNameValuePair("login[validation_code]", curr_code));
+                }
                 httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
                 // Execute HTTP Post Request
                 HttpResponse response = httpclient.execute(httppost);
                 String post = EntityUtils.toString(httppost.getEntity());
                 Log.d("MyApp", "Sending post: " + post);
-                Log.d("MyApp", "Sent POST!");
                 String result = EntityUtils.toString(response.getEntity());
                 if (result != null)
                 	Log.d("MyApp", "Response: " + result);
                 else
                 	Log.d("MyApp", "No response");
                 
+                // On first time, add shared secret
+                if (!result.equals("success") && !result.equals("failure"))
+    			    prefEditor.putString(host, result);
+                
                 // Go back to main activity
                 Intent myIntent = new Intent(POSTActivity.this, MainActivity.class);
-        		Bundle bundle = getIntent().getExtras();
         		String s;
         		if (result.equals("failure"))
         			s = "failure";
@@ -80,11 +96,14 @@ public class POSTActivity extends Activity {
         			s = "success";
         		myIntent.putExtra("post_success", s);
         		POSTActivity.this.startActivity(myIntent);
+        		
             } catch (ClientProtocolException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            } catch (Exception e) {
+				e.printStackTrace();
+			}
     	}
 	}
 }

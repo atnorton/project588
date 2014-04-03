@@ -32,6 +32,7 @@ public class LoginConfirmationActivity extends Activity {
 		Bundle b = getIntent().getExtras();
 		myIntent.putExtra("token", b.getString("token"));
 		myIntent.putExtra("address", b.getString("address"));
+		myIntent.putExtra("host", b.getString("server"));
 		LoginConfirmationActivity.this.startActivity(myIntent);
 	}
 	

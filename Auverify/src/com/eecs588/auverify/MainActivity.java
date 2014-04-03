@@ -30,8 +30,7 @@ public class MainActivity extends Activity {
 	   {    
 	   }
 	};
-	
-	public static final String PREFS_NAME = "MyPrefsFile";
+
 	ReceiveMessages myReceiver = null;
 	Boolean myReceiverIsRegistered = false;
 
@@ -52,7 +51,8 @@ public class MainActivity extends Activity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        String prefs_name = getString(R.string.prefs_name);
+        SharedPreferences settings = getSharedPreferences(prefs_name, MODE_PRIVATE);
         String username = settings.getString("uname", "");
         Log.v("MyApp", "UNAME_create: "+username);
         if(username.equals("")) {
