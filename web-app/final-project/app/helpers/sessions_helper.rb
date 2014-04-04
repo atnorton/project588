@@ -49,7 +49,7 @@ module SessionsHelper
   end
 
   def get_user(user_token)
-    session_key = Session.encrypt(cookies.permanent[:user_token])
+    session_key = Session.encrypt(user_token)
     session = Session.find_by(session_key: session_key)
     if(!session.nil?)
       return session.user

@@ -53,8 +53,9 @@ class SessionsController < ApplicationController
         if !cookies.permanent[:session_id].nil? && !current_user.nil?
           redirect_to current_user
         else
-          if current_user.auth_secret.nil?
-            return render json: current_user.assign_auth_secret
+          user = get_user(user_token)
+          if user.auth_secret.nil?
+            return render json: user.assign_auth_secret
           else
             return render json: "success" 
           end
