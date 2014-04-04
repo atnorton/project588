@@ -43,14 +43,7 @@ public class MainActivity extends Activity {
         if(i!=null && i.getData()!=null) {
         	Log.v("Auverify", "path: " + i.getData().getPath());
         }
-        final String secret = "p3im76r6cu3kb32k";
-        
-        try {
-			Log.v("Auverify", "code: " + TOTPUtility.getCurrentCode(secret));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
         String prefs_name = getString(R.string.prefs_name);
         SharedPreferences settings = getSharedPreferences(prefs_name, MODE_PRIVATE);
         String username = settings.getString("uname", "");
@@ -59,10 +52,6 @@ public class MainActivity extends Activity {
         	Intent intent = new Intent(this, Settings.class);
 			startActivity(intent);
         }
-                
-        
-        Intent intent = new Intent(this, EmailRetreiver.class);
-        startService(intent);
 
         setContentView(R.layout.activity_main);
     }
@@ -93,7 +82,11 @@ public class MainActivity extends Activity {
 	
 	@Override
 	protected void onResume(){
-		super.onResume();
+		super.onResume();   
+        
+		Intent intent = new Intent(this, EmailRetreiver.class);
+		startService(intent);
+
 		if (!myReceiverIsRegistered) {
 			StartLoading();
 		    registerReceiver(myReceiver, new IntentFilter("com.mycompany.myapp.SOME_MESSAGE"));
@@ -127,6 +120,16 @@ public class MainActivity extends Activity {
     	    unregisterReceiver(myReceiver);
     	    myReceiverIsRegistered = false;
     	}
+    }
+    
+    @Override
+    protected void onStop() {
+    	super.onStop();
+    	
+    	Log.v("Auverify", "Stopping service");
+    	
+        Intent intent = new Intent(this, EmailRetreiver.class);
+        stopService(intent);
     }
     
     public void RunAnimation(View v)

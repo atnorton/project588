@@ -112,6 +112,16 @@ public class EmailRetreiver extends IntentService implements
 		Runnable r = new IdleFolder((IMAPFolder) inbox);
 		new Thread(r).start();
 	}
+	
+	public void onDestroy() {
+		super.onDestroy();
+		try {
+			((IMAPFolder)inbox).forceClose();
+		} catch (MessagingException e) {
+			Log.v("Auverify", "Unable to destroy");
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public void messagesAdded(MessageCountEvent arg0) {
