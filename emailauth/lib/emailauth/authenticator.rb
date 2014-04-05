@@ -29,10 +29,11 @@ class EmailAuth::Authenticator
   end
 
   ##
-  # Validates whether a TOTP code is valid for a particular secret
+  # Validates whether a TOTP code is valid for a particular secret.
+  # Allows for a 30 second max transmission delay
   ##
   def self.validateTOTP(auth_secret, code)
-    return code == ROTP::TOTP.new(auth_secret).now.to_s
+    return ROTP::TOTP.new(auth_secret).verify_with_drift(code, 30)
   end
 
   ##
