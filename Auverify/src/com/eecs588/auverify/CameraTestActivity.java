@@ -6,22 +6,6 @@
  */
 package com.eecs588.auverify;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-
-import com.eecs588.auverify.R;
-
 import net.sourceforge.zbar.Config;
 import net.sourceforge.zbar.Image;
 import net.sourceforge.zbar.ImageScanner;
@@ -148,22 +132,23 @@ public class CameraTestActivity extends Activity
                     
                     SymbolSet syms = scanner.getResults();
                     for (Symbol sym : syms) {
-                    	String qr_data = sym.getData();
-                    	Log.d("MyApp", "Got QR token: " + qr_data);
+                    	String user_token = sym.getData();
+                    	Log.d("Auverify", "Got QR token: " + user_token);
+                    	
                         Bundle b = getIntent().getExtras();
-                        String email_token = b.getString("token");
+                        String email_token = b.getString("email_token");
                         String address = b.getString("address");
                         String host = b.getString("host");
-                        email_token = email_token.substring(0, email_token.length() - 2);
+                       
                         barcodeScanned = true;
                         
                         // Start POST Activity
                         Intent myIntent = new Intent(CameraTestActivity.this, POSTActivity.class);
-                		Bundle bundle = getIntent().getExtras();
-                		myIntent.putExtra("token", email_token);
+                		myIntent.putExtra("email_token", email_token);
                 		myIntent.putExtra("address", address);
-                		myIntent.putExtra("qr_data", qr_data);
+                		myIntent.putExtra("user_token", user_token);
                 		myIntent.putExtra("host", host);
+                		
                 		CameraTestActivity.this.startActivity(myIntent);
                     }
                 }

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.mail.Flags;
 import javax.mail.Folder;
@@ -17,9 +18,6 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.event.MessageCountEvent;
 import javax.mail.event.MessageCountListener;
-import javax.mail.internet.MimeMessage;
-
-import com.sun.mail.imap.IMAPFolder;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -28,6 +26,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.sun.mail.imap.IMAPFolder;
+
 public class EmailRetreiver extends IntentService implements
 		MessageCountListener {
 	private int NUM_MESSAGES = 10; // This assumes the email is within the
@@ -35,24 +35,43 @@ public class EmailRetreiver extends IntentService implements
 	private int TIMEOUT = 60 * 5 * 1000; // 5 minutes in milliseconds
 	private Folder inbox;
 	public static final String PREFS_NAME = "MyPrefsFile";
+	Thread thread;
+	Store store;
+	String userToken;
+	AtomicBoolean isOpen;
 
 	public EmailRetreiver() {
 		super("EmailRetreiver");
+		
+		isOpen = new AtomicBoolean(false);
 	}
 
 	public class IdleFolder implements Runnable {
 		private IMAPFolder f;
+		private Store s;
 
-		public IdleFolder(IMAPFolder f_) {
+		public IdleFolder(Store s_, IMAPFolder f_) {
 			f = f_;
+			s = s_;
 		}
 
 		public void run() {
+			Log.v("Auverify", "Email listener started...");
 			try {
-				f.idle();
+				while (!Thread.interrupted()) {
+					f.getMessageCount();
+					Thread.sleep(1000);
+				}
+				
+				f.close(false);
+				s.close();
 			} catch (MessagingException e) {
 				e.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
+			
+			Log.v("Auverify", "Email listener finished...");
 		}
 	}
 
@@ -62,13 +81,31 @@ public class EmailRetreiver extends IntentService implements
 	}
 
 	@Override
+	public void onCreate() {
+		isOpen.set(true);
+		Log.v("Auverify", "Starting service");
+		
+		super.onCreate();
+	}
+	
+	@Override
 	public void onHandleIntent(Intent intent) {
-		Log.d("MyApp", "EmailRetreiver created");
-
+		if(!isOpen.get())
+				return;
+		
+		Log.d("Auverify", "EmailRetreiver created");
+		
+        if(intent.getStringExtra("user_token")!=null) {
+        	userToken = intent.getStringExtra("user_token");
+        	Log.v("Auverify", "Started with user_token:" + userToken);
+        } else {
+        	userToken = null;
+        }
+		
 		Properties props = System.getProperties();
 		props.setProperty("mail.store.protocol", "imaps");
 		Session session = Session.getDefaultInstance(props, null);
-		Store store;
+		
 		try {
 			// Establish connection with inbox
 			store = session.getStore("imaps");
@@ -78,29 +115,40 @@ public class EmailRetreiver extends IntentService implements
 			String password = settings.getString("pword", "");
 			String hostname = settings.getString("hname", "");
 
-			Log.v("Mystuff", "uname: " + username);
-			Log.v("Mystuff", "hname: " + hostname);
+			Log.v("Auverify", "uname: " + username);
+			Log.v("Auverify", "hname: " + hostname);
 
 			store.connect(hostname, username, password);
+
 			inbox = store.getFolder("Inbox");
 			inbox.open(Folder.READ_WRITE);
-
+			
+			// Idle the IMAPFolder
+			Runnable r = new IdleFolder(store, (IMAPFolder) inbox);
+			thread = new Thread(r);
+			// Add listener for new emails
+			inbox.addMessageCountListener(this);
+			thread.start();
+			
 			// Get most recent messages
 			int num_msgs = inbox.getMessageCount();
 			Message[] messages = inbox.getMessages(num_msgs - NUM_MESSAGES,
 					num_msgs);
 			Collections.reverse(Arrays.asList(messages));
-			for (int i = 0; i < messages.length; i++) {
+			for (int i = 0; i < messages.length; i++) {					
 				long time_diff = processMessage(messages[i]);
-				if (time_diff > TIMEOUT)
+				if (time_diff > TIMEOUT || !isOpen.get())
 					break;
 			}
 
-			// Add listener for new emails
-			inbox.addMessageCountListener(this);
-
-			// Idle the IMAPFolder
-			startIdle();
+			if(!isOpen.get())
+				thread.interrupt();
+			
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		} catch (NoSuchProviderException e) {
 			e.printStackTrace();
 		} catch (MessagingException e) {
@@ -108,18 +156,13 @@ public class EmailRetreiver extends IntentService implements
 		}
 	}
 
-	public void startIdle() {
-		Runnable r = new IdleFolder((IMAPFolder) inbox);
-		new Thread(r).start();
-	}
-	
 	public void onDestroy() {
+		isOpen.set(false);
 		super.onDestroy();
-		try {
-			((IMAPFolder)inbox).forceClose();
-		} catch (MessagingException e) {
-			Log.v("Auverify", "Unable to destroy");
-			e.printStackTrace();
+		
+		if(thread!=null) {
+			thread.interrupt();
+			Log.v("Auverify", "onDestroy called");
 		}
 	}
 
@@ -127,7 +170,6 @@ public class EmailRetreiver extends IntentService implements
 	public void messagesAdded(MessageCountEvent arg0) {
 		Message[] msg_array = arg0.getMessages();
 		processMessage(msg_array[0]);
-		startIdle();
 	}
 
 	@Override
@@ -140,19 +182,21 @@ public class EmailRetreiver extends IntentService implements
 		long time_diff = 0;
 		try {
 			// Check if email was sent recently
-			Log.v("MyApp", m.getSubject());
+			String subject = m.getSubject();
+			Log.v("Auverify", subject);
+			
+			// Check if the subject is correct
+			if (!subject.equals("Log in request"))
+				return time_diff;
+			
 			Date sentDate = m.getSentDate();
-			//Date curr = new Date();
+			
 			time_diff = (System.currentTimeMillis() - sentDate.getTime()) / 1000;
 			if (time_diff > TIMEOUT) {
-				Log.d("MyApp", "Processed email not sent within time limit");
+				Log.d("Auverify", "Processed email not sent within time limit");
 				return time_diff;
 			}
 
-			// Check if the subject is correct
-			if (!m.getSubject().equals("Log in request"))
-				return time_diff;
-			
 			// Check if the email is already seen
 			Flags flags = m.getFlags();
 			if (flags.contains(Flags.Flag.SEEN))
@@ -165,29 +209,32 @@ public class EmailRetreiver extends IntentService implements
 				return time_diff;
 			}
 			String link = body.substring(idx).split(" ")[0];
-			String token = link.substring(link.lastIndexOf("/") + 1);
+			String email_token = link.substring(link.lastIndexOf("/") + 1, link.length()-2);
 			String address = link.substring(0, link.lastIndexOf("/"));
-			Log.d("MyApp", "Got email token: " + token);
-			
-			inbox.setFlags(new Message[] {m}, new Flags(Flags.Flag.SEEN), true);
-			
+			Log.d("Auverify", "Got email token: " + email_token);
+
+			inbox.setFlags(new Message[] { m }, new Flags(Flags.Flag.SEEN),
+					true);
+
 			Intent dialogIntent = new Intent(getBaseContext(),
 					LoginConfirmationActivity.class);
-			
+
 			Bundle b = new Bundle();
 			String server = m.getFrom()[0].toString();
 			server = server.substring(0, server.indexOf("<"));
 			b.putString("server", server);
-			b.putString("token", token);
+			b.putString("email_token", email_token);
 			b.putString("address", address);
+			if(userToken!=null)
+				b.putString("user_token", userToken);
+			
 			dialogIntent.putExtras(b);
 			dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			getApplication().startActivity(dialogIntent);
 		} catch (Exception e) {
 			e.printStackTrace();
-
-			return Long.MAX_VALUE;
 		}
+		
 		return time_diff;
 	}
 

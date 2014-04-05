@@ -1,53 +1,32 @@
 package com.eecs588.auverify;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.eecs588.auverify.R;
-import com.google.android.apps.authenticator.TOTPUtility;
-
 public class MainActivity extends Activity {
-	public class ReceiveMessages extends BroadcastReceiver 
-	{
-	@Override
-	   public void onReceive(Context context, Intent intent) 
-	   {    
-	   }
-	};
-
-	ReceiveMessages myReceiver = null;
 	Boolean myReceiverIsRegistered = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        myReceiver = new ReceiveMessages();
-        Intent i = getIntent();
-        if(i!=null && i.getData()!=null) {
-        	Log.v("Auverify", "path: " + i.getData().getPath());
-        }
-
+          
         String prefs_name = getString(R.string.prefs_name);
         SharedPreferences settings = getSharedPreferences(prefs_name, MODE_PRIVATE);
+
+	    Log.v("Auverify", settings.getAll().toString());
+	    
         String username = settings.getString("uname", "");
-        Log.v("MyApp", "UNAME_create: "+username);
+        Log.v("Auverify", "UNAME_create: "+username);
         if(username.equals("")) {
         	Intent intent = new Intent(this, Settings.class);
 			startActivity(intent);
@@ -83,19 +62,27 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onResume(){
 		super.onResume();   
-        
-		Intent intent = new Intent(this, EmailRetreiver.class);
-		startService(intent);
-
+		
 		if (!myReceiverIsRegistered) {
+			Intent intent = new Intent(this, EmailRetreiver.class);
+			
+	        Intent i = getIntent();
+	        if(i!=null && i.getData()!=null) {
+	        	String path = i.getData().getPath();
+	        	String user_token = path.substring(path.lastIndexOf("/")+1);
+	        	intent.putExtra("user_token", user_token);
+	        	Log.v("Auverify", "user_token: " + user_token);
+	        }
+			
+			startService(intent);
+			
 			StartLoading();
-		    registerReceiver(myReceiver, new IntentFilter("com.mycompany.myapp.SOME_MESSAGE"));
 		    myReceiverIsRegistered = true;
 		}
+		
 		Bundle b = getIntent().getExtras();
-		if (b == null) return;
+		if (b == null || b.getString("post_success")==null) return;
 		if (b.getString("post_success").equals("success")){
-			Context context = getApplicationContext();
 			CharSequence text = "Log in succeeded!";
 			int duration = Toast.LENGTH_LONG;
 
@@ -103,7 +90,6 @@ public class MainActivity extends Activity {
 			toast.show();
 		}
 		else if (b.getString("post_success").equals("failure")){
-			Context context = getApplicationContext();
 			CharSequence text = "Log in failed...";
 			int duration = Toast.LENGTH_LONG;
 
@@ -117,19 +103,19 @@ public class MainActivity extends Activity {
     	super.onPause();
     	if (myReceiverIsRegistered) {
     		StopLoading();
-    	    unregisterReceiver(myReceiver);
+
     	    myReceiverIsRegistered = false;
+    	    
+        	Log.v("Auverify", "Stopping service");
+        	
+            Intent intent = new Intent(this, EmailRetreiver.class);
+            stopService(intent);
     	}
     }
     
     @Override
     protected void onStop() {
     	super.onStop();
-    	
-    	Log.v("Auverify", "Stopping service");
-    	
-        Intent intent = new Intent(this, EmailRetreiver.class);
-        stopService(intent);
     }
     
     public void RunAnimation(View v)
@@ -141,7 +127,7 @@ public class MainActivity extends Activity {
     public void StartLoading() {
         ImageView refreshImage = (ImageView) findViewById(R.id.anim_example);
         if (refreshImage == null){
-        	Log.d("MyApp", "ImageView is null!");
+        	Log.d("Auverify", "ImageView is null!");
         	return;
         }
         refreshImage.setImageDrawable(getResources().getDrawable(R.drawable.loading_icon));
