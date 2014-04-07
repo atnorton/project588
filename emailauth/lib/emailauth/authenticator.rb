@@ -4,6 +4,20 @@ require 'rotp'
 
 class EmailAuth::Authenticator
   ##
+  # Generates SAW tokens in base64 given a user_token
+  ##
+  def self.generateTokens_from(user_token_s, bytes = 16)
+    user_token = Base64.urlsafe_decode64(user_token_s)
+
+    email_token = SecureRandom.random_bytes(bytes)
+    email_token_s = Base64.urlsafe_encode64(email_token)
+
+    complete_token_s = Base64.urlsafe_encode64(user_token.unpack('C*').zip(email_token.unpack('C*')).map{ |a,b| a ^ b }.pack('C*'))
+
+    return [email_token_s,complete_token_s]
+  end
+
+  ##
   # Generates SAW tokens in base64 that are the provided number of bytes
   ##
   def self.generateTokens(bytes = 16)

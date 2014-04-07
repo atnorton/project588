@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name               = "emailauth"
-  s.version            = "0.0.3"
+  s.version            = "0.0.4"
 
   s.add_runtime_dependency "rotp"
 

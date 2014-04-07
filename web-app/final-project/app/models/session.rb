@@ -1,5 +1,5 @@
 class Session < ActiveRecord::Base
-  has_one :user, dependent: :destroy
+  belongs_to :user
 
   def authenticate(user_token, email_token)
     EmailAuth.authenticate(user_token, email_token, auth_token)

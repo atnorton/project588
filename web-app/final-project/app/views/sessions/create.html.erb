@@ -1,3 +1,7 @@
+<% flash.each do |key, value| %>
+  <div class="alert alert-<%= key %>"><%= value %></div>
+<% end %>
+
 <%= qr_code(@user_token) %>
 
 <% if mobile_user_agent? %>
