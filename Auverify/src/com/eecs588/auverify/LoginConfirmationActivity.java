@@ -20,8 +20,10 @@ public class LoginConfirmationActivity extends Activity {
 		super.onResume();
 		Bundle b = getIntent().getExtras();
         TextView tv = (TextView) findViewById(R.id.confirmation_text);
-        String text = b.getString("server") + " is requesting login authentication. Do";
-        text += " you want to log in?";
+        String text = b.getString("server") + " is requesting login authentication.";
+        text += "\n From " + Math.round(b.getDouble("distance")) + " mile(s) away.\n";
+        text += "Do you want to log in?";
+        
         tv.setText(text);
 	}
 	

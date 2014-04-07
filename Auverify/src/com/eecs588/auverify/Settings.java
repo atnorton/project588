@@ -1,7 +1,6 @@
 package com.eecs588.auverify;
 
 import com.eecs588.auverify.R;
-
 import android.support.v4.app.Fragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
