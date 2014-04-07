@@ -24,8 +24,8 @@ module SessionsHelper
     session = Session.new(:user => user, :session_id => Session.encrypt(session_id), :session_key => Session.encrypt(@user_token), :auth_token => complete_token)
       session.save!
 
-    cookies.permanent[:user_token] = @user_token
-    cookies.permanent[:session_id] = session_id
+    cookies.permanent[:user_token] = { value: @user_token, httponly: true }
+    cookies.permanent[:session_id] = { value: session_id, httponly: true }
 
     if(!is_locked?(user))
       AuthMailer.auth_email(params[:session][:email].downcase, email_token, request.remote_ip).deliver
@@ -33,7 +33,7 @@ module SessionsHelper
   end
 
   def is_locked?(user)
-    user.is_locked > (Time.now-24.hours)
+    !user.is_locked.nil? && user.is_locked > (Time.now-24.hours)
   end
 
   def lock_account?(user)
@@ -63,7 +63,7 @@ module SessionsHelper
   def send_locked_email(user_token, validation_code)
     session_key = Session.encrypt(user_token)
     session = Session.where(created_at: (Time.now - 5.minutes)..Time.now).find_by(session_key: session_key)
-    if session==nil || session.logged_in || session.user.nil?
+    if session==nil || session.logged_in || session.user.nil? || !session.auth_token.nil?
       return render :json => "failed validation"
     end
 
