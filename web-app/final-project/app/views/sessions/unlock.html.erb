@@ -1,0 +1,15 @@
+<% provide(:title, "Enter Two-Factor Code") %>
+
+<div class="row parent">
+  <div class="login">
+  <%= form_for(:unlock, url: '/unlock') do |sessionForm| %>
+    <%= sessionForm.label :user_token %>
+    <%= sessionForm.text_field :user_token %>
+
+    <%= sessionForm.label :validation_code %>
+    <%= sessionForm.text_field :validation_code %>
+
+    <%= sessionForm.submit "Unlock Account" %>
+  <% end %>
+  </div>
+</div>

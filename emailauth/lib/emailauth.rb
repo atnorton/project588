@@ -1,4 +1,8 @@
 class EmailAuth
+  def self.generateTokens_from(user_token, bytes = 16)
+    EmailAuth::Authenticator.generateTokens_from(user_token, bytes)
+  end
+
   def self.generateTokens(bytes = 16)
     EmailAuth::Authenticator.generateTokens(bytes)
   end

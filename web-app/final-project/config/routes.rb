@@ -2,11 +2,13 @@ FinalProject::Application.routes.draw do
   get 'users/:id/twofactor' => 'users#twofactor'
   resources :users
 
+  get 'sessions/unlock' => 'sessions#unlock'
   get 'sessions/waitForLogin' => 'sessions#waitForLogin'
   resources :sessions
 
   delete 'sessions' => 'sessions#destroy'
 
+  post 'unlock' => 'sessions#unlock'
   post 'authenticate', to: 'sessions#authenticate'
   get 'authenticate/:email_token' => 'sessions#authenticate'
 

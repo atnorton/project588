@@ -1,7 +1,17 @@
+<% flash.each do |key, value| %>
+  <div class="alert alert-<%= key %>"><%= value %></div>
+<% end %>
+
 <%= qr_code(@user_token) %>
 
 <% if mobile_user_agent? %>
-  <a href="http://auverify.com/sendToApp/<%= @user_token %>">Send To Auverify</a>
+<div class="container">
+  <div style="padding: 20px;">
+    <p class="lead text-center">
+      <a class="btn btn-large btn-primary" style="padding: 25px" href="http://auverify.com/sendToApp/<%= @user_token %>">Open Auverify App</a>
+    </p>
+  </div>
+</div>
 <% end %>
 
 <script>

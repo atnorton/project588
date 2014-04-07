@@ -1,5 +1,5 @@
 class SessionsController < ApplicationController
-  protect_from_forgery :except => [:authenticate]
+  protect_from_forgery :except => [:authenticate, :unlock]
 
   def new
   end
@@ -21,19 +21,26 @@ class SessionsController < ApplicationController
     @user = User.find_by(email: params[:session][:email].downcase)
     if(@user==nil)
       @user = User.new(email: params[:session][:email].downcase)
-      @user.save
+      if(!@user.save)
+        flash[:danger] = "Invalid email address"
+        return render 'new'
+      end
     end
 
-    @user_token, @email_token, complete_token = EmailAuth.generateTokens(32)
+    if lock_account?(@user)
+      lock(@user)
+    end
 
-    session_id = Session.generateSessionId
+    auth_request(@user)
+  end
 
-    @session = Session.new(:user => @user, :session_id => Session.encrypt(session_id), :session_key => Session.encrypt(@user_token), :auth_token => complete_token)
-    @session.save!
-    cookies.permanent[:user_token] = @user_token
-    cookies.permanent[:session_id] = session_id
-   
-    AuthMailer.auth_email(params[:session][:email].downcase, @email_token).deliver
+  def unlock
+    if request.post?
+      user_token = params[:unlock][:user_token]
+      validation_code = params[:unlock][:validation_code]
+
+      send_locked_email(user_token, validation_code)
+    end
   end
 
   def waitForLogin
@@ -53,8 +60,9 @@ class SessionsController < ApplicationController
         if !cookies.permanent[:session_id].nil? && !current_user.nil?
           redirect_to current_user
         else
-          if current_user.auth_secret.nil?
-            return render json: current_user.assign_auth_secret
+          user = get_user(user_token)
+          if user.auth_secret.nil?
+            return render json: user.assign_auth_secret
           else
             return render json: "success" 
           end

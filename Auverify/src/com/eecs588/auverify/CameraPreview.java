@@ -22,7 +22,8 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     private PreviewCallback previewCallback;
     private AutoFocusCallback autoFocusCallback;
 
-    public CameraPreview(Context context, Camera camera,
+    @SuppressWarnings("deprecation")
+	public CameraPreview(Context context, Camera camera,
                          PreviewCallback previewCb,
                          AutoFocusCallback autoFocusCb) {
         super(context);

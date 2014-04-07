@@ -3,14 +3,12 @@ package com.eecs588.auverify;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 public class LoginConfirmationActivity extends Activity {
-	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,18 +25,26 @@ public class LoginConfirmationActivity extends Activity {
         tv.setText(text);
 	}
 	
-	public void goToCamera(View v){
-		Intent myIntent = new Intent(LoginConfirmationActivity.this, CameraTestActivity.class);
+	public void goToCamera(View v){		
 		Bundle b = getIntent().getExtras();
-		myIntent.putExtra("token", b.getString("token"));
+		Intent myIntent;
+		if(b.getString("user_token")!=null && !b.getString("user_token").isEmpty()) {
+			myIntent = new Intent(this, POSTActivity.class);
+			myIntent.putExtra("user_token", b.getString("user_token"));
+		} else {
+			myIntent = new Intent(this, CameraTestActivity.class);
+		}
+
+		myIntent.putExtra("email_token", b.getString("email_token"));
 		myIntent.putExtra("address", b.getString("address"));
 		myIntent.putExtra("host", b.getString("server"));
-		LoginConfirmationActivity.this.startActivity(myIntent);
+		
+		this.startActivity(myIntent);
 	}
 	
 	public void goToMain(View v){
-		Intent myIntent = new Intent(LoginConfirmationActivity.this, MainActivity.class);
-		LoginConfirmationActivity.this.startActivity(myIntent);
+		Intent myIntent = new Intent(this, MainActivity.class);
+		this.startActivity(myIntent);
 	}
 	
     @Override
@@ -56,7 +62,6 @@ public class LoginConfirmationActivity extends Activity {
 		
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
-			
 			Intent intent = new Intent(this, Settings.class);
 			startActivity(intent);
 			

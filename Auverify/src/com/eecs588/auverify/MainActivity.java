@@ -1,23 +1,17 @@
 package com.eecs588.auverify;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.Toast;
+
 
 import com.eecs588.auverify.R;
 import com.google.android.apps.authenticator.PasscodeGenerator;
@@ -26,6 +20,7 @@ import com.google.android.apps.authenticator.TOTPUtility;
 public class MainActivity extends Activity {
 
 	Boolean myAnimationLoaded = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +39,14 @@ public class MainActivity extends Activity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
         String prefs_name = getString(R.string.prefs_name);
         SharedPreferences settings = getSharedPreferences(prefs_name, MODE_PRIVATE);
+
+	    Log.v("Auverify", settings.getAll().toString());
+	    
         String username = settings.getString("uname", "");
-        Log.v("MyApp", "UNAME_create: "+username);
+        Log.v("Auverify", "UNAME_create: "+username);
         if(username.equals("")) {
         	Intent intent = new Intent(this, Settings.class);
 			startActivity(intent);
@@ -108,7 +107,7 @@ public class MainActivity extends Activity {
 		}
 		
 		if (b == null || b.getBoolean("is_unlock")) return;
-		
+
 		if (b.getString("post_success").equals("success")){
 			CharSequence text = "Log in succeeded!";
 			int duration = Toast.LENGTH_LONG;
@@ -132,12 +131,22 @@ public class MainActivity extends Activity {
     		StopLoading();
     	    myAnimationLoaded = false;
     	}
+    	    
+        Log.v("Auverify", "Stopping service");
+        	
+        Intent intent = new Intent(this, EmailRetreiver.class);
+        stopService(intent);
+    }
+    
+    @Override
+    protected void onStop() {
+    	super.onStop();
     }
 
     public void StartLoading() {
         ImageView refreshImage = (ImageView) findViewById(R.id.anim_example);
         if (refreshImage == null){
-        	Log.d("MyApp", "ImageView is null!");
+        	Log.d("Auverify", "ImageView is null!");
         	return;
         }
         refreshImage.setImageDrawable(getResources().getDrawable(R.drawable.loading_icon));
