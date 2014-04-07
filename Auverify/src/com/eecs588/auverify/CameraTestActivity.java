@@ -29,6 +29,7 @@ import net.sourceforge.zbar.Symbol;
 import net.sourceforge.zbar.SymbolSet;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
@@ -149,21 +150,31 @@ public class CameraTestActivity extends Activity
                     SymbolSet syms = scanner.getResults();
                     for (Symbol sym : syms) {
                     	String qr_data = sym.getData();
-                    	Log.d("MyApp", "Got QR token: " + qr_data);
+                    	barcodeScanned = true;
+
+                    	// Arrange bundle for POSTActivity
+                    	String prefs_name = getString(R.string.prefs_name);
+                    	SharedPreferences settings = getSharedPreferences(prefs_name, MODE_PRIVATE);
                         Bundle b = getIntent().getExtras();
-                        String email_token = b.getString("token");
-                        String address = b.getString("address");
-                        String host = b.getString("host");
-                        email_token = email_token.substring(0, email_token.length() - 2);
-                        barcodeScanned = true;
-                        
-                        // Start POST Activity
+                        Boolean is_unlock = b.getBoolean("is_unlock", false);
                         Intent myIntent = new Intent(CameraTestActivity.this, POSTActivity.class);
-                		Bundle bundle = getIntent().getExtras();
-                		myIntent.putExtra("token", email_token);
-                		myIntent.putExtra("address", address);
-                		myIntent.putExtra("qr_data", qr_data);
+                        String host = b.getString("host");
+                        myIntent.putExtra("qr_data", qr_data);
                 		myIntent.putExtra("host", host);
+                		
+                        if (is_unlock){
+                        	String unlock_addr = settings.getString(host + "unlock_link", "");
+                        	myIntent.putExtra("is_unlock", true);
+                        	myIntent.putExtra("address", unlock_addr);
+                        }
+                        else{
+	                        String email_token = b.getString("token");
+	                        email_token = email_token.substring(0, email_token.length() - 2);
+	                        String address = b.getString("address");
+	                		myIntent.putExtra("token", email_token);
+	                		myIntent.putExtra("address", address);
+	                		
+                        }
                 		CameraTestActivity.this.startActivity(myIntent);
                     }
                 }

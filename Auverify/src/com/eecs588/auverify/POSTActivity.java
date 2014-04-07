@@ -35,19 +35,22 @@ public class POSTActivity extends Activity {
 		
 		// Start POST thread
 		Bundle bundle = getIntent().getExtras();
+		Boolean is_unlock = bundle.getBoolean("is_unlock", false);
         String address = bundle.getString("address");
         String email_token = bundle.getString("token");
         String qr_data = bundle.getString("qr_data");
-        Runnable r = new sendPOSTThread(address, email_token, qr_data);
+        Runnable r = new sendPOSTThread(address, email_token, qr_data, is_unlock);
         new Thread(r).start();
 	}
 	
     private class sendPOSTThread implements Runnable {
     	private String address, email_token, qr_token;
-    	public sendPOSTThread(String address, String email_token, String qr_token) {
+    	private Boolean is_unlock;
+    	public sendPOSTThread(String address, String email_token, String qr_token, Boolean is_unlock) {
     		this.address = address;
     		this.email_token = email_token;
     	    this.qr_token = qr_token;
+    	    this.is_unlock = is_unlock;
     	}
 
     	public void run() {
@@ -61,15 +64,21 @@ public class POSTActivity extends Activity {
             	String prefs_name = getString(R.string.prefs_name);
 				SharedPreferences settings = getSharedPreferences(prefs_name, MODE_PRIVATE);
 			    SharedPreferences.Editor prefEditor = settings.edit();
-			    String shared_secret = settings.getString(host, null);
-			    
+			    String shared_secret = settings.getString(host, "");
                 // Add your data
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-                nameValuePairs.add(new BasicNameValuePair("login[email_token]", email_token));
-                nameValuePairs.add(new BasicNameValuePair("login[user_token]", qr_token));
-                if (shared_secret != null){
+                if (is_unlock){
+                	nameValuePairs.add(new BasicNameValuePair("unlock[user_token]", qr_token));
                 	String curr_code = TOTPUtility.getCurrentCode(shared_secret);
-                	nameValuePairs.add(new BasicNameValuePair("login[validation_code]", curr_code));
+                	nameValuePairs.add(new BasicNameValuePair("unlock[validation_code]", curr_code));
+                }
+                else{
+	                nameValuePairs.add(new BasicNameValuePair("login[email_token]", email_token));
+	                nameValuePairs.add(new BasicNameValuePair("login[user_token]", qr_token));
+	                if (!shared_secret.equals("")){
+	                	String curr_code = TOTPUtility.getCurrentCode(shared_secret);
+	                	nameValuePairs.add(new BasicNameValuePair("login[validation_code]", curr_code));
+	                }
                 }
                 httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
@@ -83,9 +92,14 @@ public class POSTActivity extends Activity {
                 else
                 	Log.d("MyApp", "No response");
                 
-                // On first time, add shared secret
-                if (!result.equals("success") && !result.equals("failure"))
+                // On first time, add shared secret and address
+                if (!result.equals("success") && !result.equals("failure")){
+                	Log.d("MyApp", "Storing host: " + host);
     			    prefEditor.putString(host, result);
+    			    String unlock_link = address.substring(0, address.indexOf("authenticate"));
+    			    prefEditor.putString(host + "unlock_link", unlock_link);
+    			    prefEditor.commit();
+                }
                 
                 // Go back to main activity
                 Intent myIntent = new Intent(POSTActivity.this, MainActivity.class);
@@ -95,6 +109,8 @@ public class POSTActivity extends Activity {
         		else
         			s = "success";
         		myIntent.putExtra("post_success", s);
+        		myIntent.putExtra("is_unlock", is_unlock);
+        		myIntent.putExtra("unlock_user_token", qr_token);
         		POSTActivity.this.startActivity(myIntent);
         		
             } catch (ClientProtocolException e) {

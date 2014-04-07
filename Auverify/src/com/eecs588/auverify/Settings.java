@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 public class Settings extends ActionBarActivity {
-	public static final String PREFS_NAME = "MyPrefsFile";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +25,7 @@ public class Settings extends ActionBarActivity {
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
 		
-		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+		SharedPreferences settings = getSharedPreferences(getString(R.string.prefs_name), MODE_PRIVATE);
 		String username = settings.getString("uname", "");
 		String password = settings.getString("pword", "");
 		String hostname = settings.getString("hname", "");
@@ -81,7 +80,7 @@ public class Settings extends ActionBarActivity {
 	
 	public void updateSettings(View view) {
 	    // Do something in response to button
-		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+		SharedPreferences settings = getSharedPreferences(getString(R.string.prefs_name), MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 		EditText username = (EditText) findViewById(R.id.username);
 		EditText password = (EditText) findViewById(R.id.password);

@@ -35,6 +35,7 @@ public class EmailRetreiver extends IntentService implements
 	private int TIMEOUT = 60 * 5 * 1000; // 5 minutes in milliseconds
 	private Folder inbox;
 	public static final String PREFS_NAME = "MyPrefsFile";
+	private Intent myIntent;
 
 	public EmailRetreiver() {
 		super("EmailRetreiver");
@@ -64,7 +65,7 @@ public class EmailRetreiver extends IntentService implements
 	@Override
 	public void onHandleIntent(Intent intent) {
 		Log.d("MyApp", "EmailRetreiver created");
-
+		myIntent = intent;
 		Properties props = System.getProperties();
 		props.setProperty("mail.store.protocol", "imaps");
 		Session session = Session.getDefaultInstance(props, null);
@@ -130,9 +131,7 @@ public class EmailRetreiver extends IntentService implements
 		long time_diff = 0;
 		try {
 			// Check if email was sent recently
-			Log.v("MyApp", m.getSubject());
 			Date sentDate = m.getSentDate();
-			//Date curr = new Date();
 			time_diff = (System.currentTimeMillis() - sentDate.getTime()) / 1000;
 			if (time_diff > TIMEOUT) {
 				Log.d("MyApp", "Processed email not sent within time limit");
@@ -151,9 +150,9 @@ public class EmailRetreiver extends IntentService implements
 			// Extract and display the link
 			String body = getText(m);
 			int idx = body.indexOf("https://");
-			if (idx == -1) {
+			if (idx == -1)
 				return time_diff;
-			}
+			
 			String link = body.substring(idx).split(" ")[0];
 			String token = link.substring(link.lastIndexOf("/") + 1);
 			String address = link.substring(0, link.lastIndexOf("/"));
@@ -161,18 +160,37 @@ public class EmailRetreiver extends IntentService implements
 			
 			inbox.setFlags(new Message[] {m}, new Flags(Flags.Flag.SEEN), true);
 			
-			Intent dialogIntent = new Intent(getBaseContext(),
-					LoginConfirmationActivity.class);
-			
-			Bundle b = new Bundle();
-			String server = m.getFrom()[0].toString();
-			server = server.substring(0, server.indexOf("<"));
-			b.putString("server", server);
-			b.putString("token", token);
-			b.putString("address", address);
-			dialogIntent.putExtras(b);
-			dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			getApplication().startActivity(dialogIntent);
+			Bundle email_bundle = myIntent.getExtras();
+			if (email_bundle == null){
+				Intent dialogIntent = new Intent(getBaseContext(),
+						LoginConfirmationActivity.class);
+				
+				Bundle b = new Bundle();
+				String server = m.getFrom()[0].toString();
+				server = server.substring(0, server.indexOf("<"));
+				b.putString("server", server);
+				b.putString("token", token);
+				b.putString("address", address);
+				dialogIntent.putExtras(b);
+				dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				getApplication().startActivity(dialogIntent);
+			}
+			else{
+				Log.d("MyApp", "EmailRetreiver detected unlock, going straight to POST");
+				Intent dialogIntent = new Intent(getBaseContext(),
+						POSTActivity.class);
+				
+				Bundle b = new Bundle();
+				String server = m.getFrom()[0].toString();
+				server = server.substring(0, server.indexOf("<"));
+				b.putString("host", server);
+				b.putString("token", token);
+				b.putString("address", address);
+				b.putString("qr_data", email_bundle.getString("unlock_user_token"));
+				dialogIntent.putExtras(b);
+				dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				getApplication().startActivity(dialogIntent);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 

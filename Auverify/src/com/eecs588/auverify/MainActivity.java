@@ -20,25 +20,17 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.eecs588.auverify.R;
+import com.google.android.apps.authenticator.PasscodeGenerator;
 import com.google.android.apps.authenticator.TOTPUtility;
 
 public class MainActivity extends Activity {
-	public class ReceiveMessages extends BroadcastReceiver 
-	{
-	@Override
-	   public void onReceive(Context context, Intent intent) 
-	   {    
-	   }
-	};
 
-	ReceiveMessages myReceiver = null;
-	Boolean myReceiverIsRegistered = false;
+	Boolean myAnimationLoaded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        myReceiver = new ReceiveMessages();
         Intent i = getIntent();
         if(i!=null && i.getData()!=null) {
         	Log.v("Auverify", "path: " + i.getData().getPath());
@@ -47,6 +39,7 @@ public class MainActivity extends Activity {
         
         try {
 			Log.v("Auverify", "code: " + TOTPUtility.getCurrentCode(secret));
+			Log.v("Auverify", "interval: " + PasscodeGenerator.INTERVAL);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -59,10 +52,6 @@ public class MainActivity extends Activity {
         	Intent intent = new Intent(this, Settings.class);
 			startActivity(intent);
         }
-                
-        
-        Intent intent = new Intent(this, EmailRetreiver.class);
-        startService(intent);
 
         setContentView(R.layout.activity_main);
     }
@@ -88,21 +77,39 @@ public class MainActivity extends Activity {
 			
 			return true;
 		}
+		if (id == R.id.action_accounts) {
+			
+			Intent intent = new Intent(this, Accounts.class);
+			startActivity(intent);
+			
+			return true;
+		}
 		return super.onOptionsItemSelected(item);
 	}
 	
 	@Override
 	protected void onResume(){
 		super.onResume();
-		if (!myReceiverIsRegistered) {
+		if (!myAnimationLoaded) {
 			StartLoading();
-		    registerReceiver(myReceiver, new IntentFilter("com.mycompany.myapp.SOME_MESSAGE"));
-		    myReceiverIsRegistered = true;
+		    myAnimationLoaded = true;
 		}
+        
 		Bundle b = getIntent().getExtras();
-		if (b == null) return;
+		Intent intent = new Intent(this, EmailRetreiver.class);
+		if (b == null || !b.getBoolean("is_unlock")){
+			Log.d("MyApp", "Starting EmailRetreiver normally");
+	        startService(intent);
+		}
+		else{
+			Log.d("MyApp", "Starting EmailRetreiver in unlock mode");
+			intent.putExtra("unlock_user_token", b.getString("unlock_user_token"));
+			startService(intent);
+		}
+		
+		if (b == null || b.getBoolean("is_unlock")) return;
+		
 		if (b.getString("post_success").equals("success")){
-			Context context = getApplicationContext();
 			CharSequence text = "Log in succeeded!";
 			int duration = Toast.LENGTH_LONG;
 
@@ -110,7 +117,6 @@ public class MainActivity extends Activity {
 			toast.show();
 		}
 		else if (b.getString("post_success").equals("failure")){
-			Context context = getApplicationContext();
 			CharSequence text = "Log in failed...";
 			int duration = Toast.LENGTH_LONG;
 
@@ -122,17 +128,10 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause(){
     	super.onPause();
-    	if (myReceiverIsRegistered) {
+    	if (myAnimationLoaded){
     		StopLoading();
-    	    unregisterReceiver(myReceiver);
-    	    myReceiverIsRegistered = false;
+    	    myAnimationLoaded = false;
     	}
-    }
-    
-    public void RunAnimation(View v)
-    {	
-        //The onClick method has to be present and must take the above parameter.
-        StartLoading();
     }
 
     public void StartLoading() {
@@ -149,8 +148,7 @@ public class MainActivity extends Activity {
 
     public void StopLoading() {
         ImageView refreshImage = (ImageView) findViewById(R.id.anim_example);
-        if (refreshImage.getAnimation() != null)
-        {
+        if (refreshImage.getAnimation() != null){
             refreshImage.clearAnimation();
             refreshImage.setImageDrawable(getResources().getDrawable(R.drawable.loading_icon));
         }
