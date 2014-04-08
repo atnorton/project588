@@ -45,7 +45,7 @@ module SessionsHelper
     user.save!
   end
 
-  def unlock(user)
+  def unlock_user(user)
     user.sessions.where(created_at: (Time.now - 5.minutes)..Time.now, logged_in: nil).destroy_all
     user.is_locked = nil
     user.save!
@@ -77,6 +77,15 @@ module SessionsHelper
     session.update_attributes(:auth_token => complete_token)
     session.save!
 
+    logger.debug "user_token:[" + user_token + "]"
+    logger.debug "email_token:[" + email_token + "]"
+    logger.debug "complete_token:[" + complete_token + "]"
+    if(!session.authenticate(user_token, email_token)) 
+      logger.debug "failure"
+    else
+      logger.debug "success"
+    end
+
     AuthMailer.auth_email(session.user.email, email_token, request.remote_ip).deliver
     return true
   end
@@ -84,6 +93,11 @@ module SessionsHelper
   def log_in(user_token, email_token, validation_code = nil)
     session_key = Session.encrypt(user_token)
     session = Session.where(created_at: (Time.now - 5.minutes)..Time.now).find_by(session_key: session_key)
+  
+    logger.debug "user_token:[" + user_token + "]"
+    logger.debug "email_token:[" + email_token + "]"
+    logger.debug "complete_token:[" + session.auth_token + "]"
+
     if session==nil || session.logged_in || session.user.nil?
       return false
     end
@@ -95,23 +109,21 @@ module SessionsHelper
 
     begin
       session.transaction do
-        if !session.logged_in
-          if session.authenticate(user_token, email_token)
-            session.logged_in = true
-
-            user = session.user
-            if is_locked?(user)
-              unlock(user)
-            end
-
-            session.save!
-            return true
-          end
+        if !session.logged_in && session.authenticate(user_token, email_token)
+          session.logged_in = true
+          session.save!
         end
       end
     rescue
       return false
     end
+
+    user = session.user
+    if(user.is_locked && session.logged_in)
+      unlock_user(user)
+    end
+
+    return session.logged_in
   end
 
   def validate_twofactor(user, code)
