@@ -104,7 +104,7 @@ public class EmailRetreiver extends IntentService implements
 	
 	@Override
 	public void onHandleIntent(Intent intent) {
-		Log.d("MyApp", "EmailRetreiver created");
+		Log.d("Auverify", "EmailRetreiver created");
 		if(!isOpen.get())
 				return;
 		
@@ -199,7 +199,6 @@ public class EmailRetreiver extends IntentService implements
 			// Check if email was sent recently
 			Date sentDate = m.getSentDate();
 			String subject = m.getSubject();
-			Log.v("Auverify", subject);
 			
 			// Check if the subject is correct
 			if (!subject.equals("Log in request"))
@@ -223,7 +222,7 @@ public class EmailRetreiver extends IntentService implements
 				return time_diff;
 			
 			String link = body.substring(idx).split(" ")[0];
-			String email_token = link.substring(link.lastIndexOf("/") + 1, link.length()-2);
+			String email_token = link.substring(link.lastIndexOf("/") + 1, link.length());
 			String address = link.substring(0, link.lastIndexOf("/"));
 
 			Log.d("Auverify", "Got email token: " + email_token);
@@ -288,38 +287,22 @@ public class EmailRetreiver extends IntentService implements
 			
 			Log.v("MyTag", "dist: " + ipl.getDist());
 			
-			if (userToken == null){
-				Intent dialogIntent = new Intent(getBaseContext(),
-						LoginConfirmationActivity.class);
-				
-				Bundle b = new Bundle();
-				String server = m.getFrom()[0].toString();
-				server = server.substring(0, server.indexOf("<"));
-				b.putString("server", server);
-				b.putString("token", email_token);
-				b.putString("address", address);
-				b.putDouble("distance", ipl.getDist());
-				dialogIntent.putExtras(b);
-				dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				getApplication().startActivity(dialogIntent);
-			}
-			else{
-				Log.d("MyApp", "EmailRetreiver detected unlock, going straight to POST");
-				Intent dialogIntent = new Intent(getBaseContext(),
-						POSTActivity.class);
-				
-				Bundle b = new Bundle();
-				String server = m.getFrom()[0].toString();
-				server = server.substring(0, server.indexOf("<"));
-				b.putString("host", server);
-				b.putString("token", email_token);
-				b.putString("address", address);
-				b.putString("qr_data", userToken);
-				b.putDouble("distance", ipl.getDist());
-				dialogIntent.putExtras(b);
-				dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				getApplication().startActivity(dialogIntent);
-			}
+			Intent dialogIntent = new Intent(getBaseContext(),
+					LoginConfirmationActivity.class);
+			
+			Bundle b = new Bundle();
+			String host = m.getFrom()[0].toString();
+			host = host.substring(0, host.indexOf("<"));
+			b.putString("host", host);
+			b.putString("email_token", email_token);
+			b.putString("address", address);
+			b.putDouble("distance", ipl.getDist());
+			if (userToken != null)
+				b.putString("user_token", userToken);
+			dialogIntent.putExtras(b);
+			dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			getApplication().startActivity(dialogIntent);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -330,7 +313,6 @@ public class EmailRetreiver extends IntentService implements
 	private String getText(Part p) throws MessagingException, IOException {
 		if (p.isMimeType("text/*")) {
 			String s = (String) p.getContent();
-
 			return s;
 		}
 
@@ -365,18 +347,6 @@ public class EmailRetreiver extends IntentService implements
 		return null;
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	private static final double earth_rad = 3963.1676; //miles
 	private class Point {
 		public double lat;
@@ -401,20 +371,6 @@ public class EmailRetreiver extends IntentService implements
 		double val2 = Math.cos(p1.lat) * Math.cos(p1.lat) * haver(p2.lon - p1.lon);
 		return 2 * earth_rad * Math.asin(Math.sqrt(val1 + val2));
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	private class IPLookup implements Runnable {
     	private String address;
@@ -505,16 +461,4 @@ public class EmailRetreiver extends IntentService implements
 		    return sb.toString();
 		}
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 }

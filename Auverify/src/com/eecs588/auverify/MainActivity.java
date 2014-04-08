@@ -89,7 +89,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onResume(){
 		super.onResume();
-		if (!myAnimationLoaded) {
+		if (!myAnimationLoaded){
 			StartLoading();
 		    myAnimationLoaded = true;
 		}
@@ -97,11 +97,11 @@ public class MainActivity extends Activity {
 		Bundle b = getIntent().getExtras();
 		Intent intent = new Intent(this, EmailRetreiver.class);
 		if (b == null || !b.getBoolean("is_unlock")){
-			Log.d("MyApp", "Starting EmailRetreiver normally");
+			Log.d("Auverify", "Starting EmailRetreiver normally");
 	        startService(intent);
 		}
 		else{
-			Log.d("MyApp", "Starting EmailRetreiver in unlock mode");
+			Log.d("Auverify", "Starting EmailRetreiver in unlock mode");
 			intent.putExtra("unlock_user_token", b.getString("unlock_user_token"));
 			startService(intent);
 		}

@@ -21,6 +21,7 @@ import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -132,9 +133,9 @@ public class CameraTestActivity extends Activity
                     
                     SymbolSet syms = scanner.getResults();
                     for (Symbol sym : syms) {
-
                     	String qr_data = sym.getData();
                     	barcodeScanned = true;
+                    	Log.d("Auverify", "Got user token: " + qr_data);
 
                     	// Arrange bundle for POSTActivity
                     	String prefs_name = getString(R.string.prefs_name);
@@ -143,19 +144,20 @@ public class CameraTestActivity extends Activity
                         Boolean is_unlock = b.getBoolean("is_unlock", false);
                         Intent myIntent = new Intent(CameraTestActivity.this, POSTActivity.class);
                         String host = b.getString("host");
-                        myIntent.putExtra("qr_data", qr_data);
+                        myIntent.putExtra("user_token", qr_data);
                 		myIntent.putExtra("host", host);
                 		
                         if (is_unlock){
-                        	String unlock_addr = settings.getString(host + "unlock_link", "");
+                        	String unlock_addr = settings.getString(host + "address", "");
+                        	unlock_addr += "unlock";
                         	myIntent.putExtra("is_unlock", true);
                         	myIntent.putExtra("address", unlock_addr);
                         }
                         else{
-	                        String email_token = b.getString("token");
+	                        String email_token = b.getString("email_token");
 	                        email_token = email_token.substring(0, email_token.length() - 2);
 	                        String address = b.getString("address");
-	                		myIntent.putExtra("token", email_token);
+	                		myIntent.putExtra("email_token", email_token);
 	                		myIntent.putExtra("address", address);
 	                		
                         }

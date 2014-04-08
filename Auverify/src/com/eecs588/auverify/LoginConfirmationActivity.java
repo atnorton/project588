@@ -20,7 +20,7 @@ public class LoginConfirmationActivity extends Activity {
 		super.onResume();
 		Bundle b = getIntent().getExtras();
         TextView tv = (TextView) findViewById(R.id.confirmation_text);
-        String text = b.getString("server") + " is requesting login authentication.";
+        String text = b.getString("host") + " is requesting login authentication.";
         text += "\n From " + Math.round(b.getDouble("distance")) + " mile(s) away.\n";
         text += "Do you want to log in?";
         
@@ -30,16 +30,18 @@ public class LoginConfirmationActivity extends Activity {
 	public void goToCamera(View v){		
 		Bundle b = getIntent().getExtras();
 		Intent myIntent;
-		if(b.getString("user_token")!=null && !b.getString("user_token").isEmpty()) {
+		
+		// Go straight to POST if unlocking
+		if(b.getString("user_token")!= null && !b.getString("user_token").isEmpty()){
 			myIntent = new Intent(this, POSTActivity.class);
 			myIntent.putExtra("user_token", b.getString("user_token"));
-		} else {
+		} 
+		else
 			myIntent = new Intent(this, CameraTestActivity.class);
-		}
 
 		myIntent.putExtra("email_token", b.getString("email_token"));
 		myIntent.putExtra("address", b.getString("address"));
-		myIntent.putExtra("host", b.getString("server"));
+		myIntent.putExtra("host", b.getString("host"));
 		
 		this.startActivity(myIntent);
 	}

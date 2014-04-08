@@ -96,13 +96,16 @@ public class POSTActivity extends Activity {
                 
                 // On first time, add shared secret and address
                 if (!result.equals("success") && !result.equals("failure")){
-                	Log.d("MyApp", "Storing host: " + host);
-    			    prefEditor.putString(host, result);
-    			    String unlock_link = address.substring(0, address.indexOf("authenticate"));
-    			    prefEditor.putString(host + "unlock_link", unlock_link);
+                	Log.d("Auverify", "Storing host: " + host);
+                	if (settings.getString(host, "").equals(""))
+                		prefEditor.putString(host, result);
+                	if (settings.getString(host + "address", "").equals("")){
+                		address = address.substring(0, address.indexOf("authenticate"));
+                		prefEditor.putString(host + "address", address);
+                	}
     			    prefEditor.commit();
                 }
-                
+                Log.d("Auverify", "Finished commiting");
                 // Go back to main activity
                 Intent myIntent = new Intent(POSTActivity.this, MainActivity.class);
         		String s;
@@ -113,6 +116,7 @@ public class POSTActivity extends Activity {
         		myIntent.putExtra("post_success", s);
         		myIntent.putExtra("is_unlock", is_unlock);
         		myIntent.putExtra("unlock_user_token", user_token);
+        		Log.d("Auverify", "Returning to MainActivity");
         		POSTActivity.this.startActivity(myIntent);
             } catch (ClientProtocolException e) {
                 e.printStackTrace();
