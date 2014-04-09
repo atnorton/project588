@@ -106,7 +106,7 @@ public class MainActivity extends Activity {
 			startService(intent);
 		}
 		
-		if (b == null || b.getBoolean("is_unlock")) return;
+		if (b == null || b.getBoolean("is_unlock") || b.getString("post_success") == null) return;
 
 		if (b.getString("post_success").equals("success")){
 			CharSequence text = "Log in succeeded!";

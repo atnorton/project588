@@ -78,6 +78,7 @@ public class EmailRetreiver extends IntentService implements
 				}
 				
 				f.close(false);
+				Log.d("Auverify", "Closed IMAPFolder");
 				s.close();
 			} catch (MessagingException e) {
 				e.printStackTrace();
@@ -97,14 +98,11 @@ public class EmailRetreiver extends IntentService implements
 	@Override
 	public void onCreate() {
 		isOpen.set(true);
-		Log.v("Auverify", "Starting service");
-		
 		super.onCreate();
 	}
 	
 	@Override
 	public void onHandleIntent(Intent intent) {
-		Log.d("Auverify", "EmailRetreiver created");
 		if(!isOpen.get())
 				return;
 		
@@ -174,11 +172,14 @@ public class EmailRetreiver extends IntentService implements
 	public void onDestroy() {
 		isOpen.set(false);
 		super.onDestroy();
-		
-		if(thread!=null) {
+		/*try {
+			inbox.close(false);
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		}*/
+		Log.v("Auverify", "onDestroy called");
+		if(thread != null)
 			thread.interrupt();
-			Log.v("Auverify", "onDestroy called");
-		}
 	}
 
 	@Override
