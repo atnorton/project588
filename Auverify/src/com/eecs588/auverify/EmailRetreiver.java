@@ -224,6 +224,8 @@ public class EmailRetreiver extends IntentService implements
 			
 			String link = body.substring(idx).split(" ")[0];
 			String email_token = link.substring(link.lastIndexOf("/") + 1, link.length());
+			if (email_token.endsWith("\r\n"))
+				email_token = email_token.substring(0, email_token.length() - 2);
 			String address = link.substring(0, link.lastIndexOf("/"));
 
 			Log.d("Auverify", "Got email token: " + email_token);

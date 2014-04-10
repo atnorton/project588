@@ -105,7 +105,7 @@ public class POSTActivity extends Activity {
                 	}
     			    prefEditor.commit();
                 }
-                Log.d("Auverify", "Finished commiting");
+
                 // Go back to main activity
                 Intent myIntent = new Intent(POSTActivity.this, MainActivity.class);
         		String s;
