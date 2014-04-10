@@ -1,11 +1,23 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:twofactor, :show, :edit, :update, :destroy]
+  before_action :set_user, only: [:confirm, :twofactor, :show, :edit, :update, :destroy]
 
   # GET /users
   # GET /users.json
   def index
     @users = User.all
     @cur_user = current_user
+  end
+
+  def confirm
+  end
+
+  def create
+    @user = User.new(user_params)
+    if @user.save
+      redirect_to :controller => "sessions", :action => "confirm", :handle => @user.handle
+    else
+      render 'new'
+    end
   end
 
   def twofactor
@@ -15,6 +27,7 @@ class UsersController < ApplicationController
   end
 
   def new
+    @user = User.new
   end
 
   # GET /users/1
@@ -53,11 +66,11 @@ class UsersController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_user
-      @user = User.find(params[:id])
+      @user = User.where(handle: params[:handle]).first
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def user_params
-      params.require(:user).permit(:name, :email, :user_token)
+      params.require(:user).permit(:handle, :name, :pending_email, :user_token)
     end
 end

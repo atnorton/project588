@@ -1,0 +1,14 @@
+<% provide(:title, "Confirm Email Address") %>
+
+<div class="row parent">
+  <div class="login">
+  <h4>Confirm Email Address With Auverify App</h4>
+  <%= form_for(:confirm, url: 'confirm') do |c| %>
+    <%= c.hidden_field :user_handle, value: @user.handle %>
+
+    <%= recaptcha_tags %>
+
+    <%= c.submit "Confirm" %>
+  <% end %>
+  </div>
+</div>

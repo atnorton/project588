@@ -8,9 +8,12 @@
 
     <%= form_for(:session, url: sessions_path) do |sessionForm| %>
       <div class="field">
-      <%= sessionForm.text_field :email, placeholder: "Email" %>
+        <%= sessionForm.text_field :email, placeholder: "Email" %>
       </div>
       <%= sessionForm.submit "Log In", class: "btn btn-large btn-primary" %>
     <% end %>
+    <h2>
+      <p><%= link_to "Create account!", new_user_path %></p>
+    </h2>
   </div>
 </div>

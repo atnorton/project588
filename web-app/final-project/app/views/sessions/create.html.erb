@@ -20,7 +20,7 @@
     {
       $.get("/sessions/waitForLogin").done(function(data) {
           if(data.result==true)
-            window.location = '/'
+          window.location = '/'
           else
             waitForLogin()
         }).error(function(data) { waitForLogin() })

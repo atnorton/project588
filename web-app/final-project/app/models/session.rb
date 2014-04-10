@@ -2,7 +2,7 @@ class Session < ActiveRecord::Base
   belongs_to :user
 
   def authenticate(user_token, email_token)
-    r = EmailAuth.authenticate(user_token, email_token, auth_token)
+    EmailAuth.authenticate(user_token, email_token, auth_token)
   end
 
   def Session.encrypt(token)

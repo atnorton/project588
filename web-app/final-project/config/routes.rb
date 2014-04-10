@@ -1,6 +1,9 @@
 FinalProject::Application.routes.draw do
-  get 'users/:id/twofactor' => 'users#twofactor'
-  resources :users
+  get 'users/:handle/twofactor' => 'users#twofactor'
+  resources :users, param: :handle
+
+  get 'sessions/confirm' => 'sessions#confirm'
+  post 'sessions/confirm' => 'sessions#confirm'
 
   get 'sessions/unlock' => 'sessions#unlock'
   get 'sessions/waitForLogin' => 'sessions#waitForLogin'

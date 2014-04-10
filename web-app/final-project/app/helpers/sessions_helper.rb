@@ -8,7 +8,7 @@ module SessionsHelper
     request.env["HTTP_USER_AGENT"].try :match, /(android)/i
   end
 
-  def auth_request(user)
+  def auth_request(user, email)
     @user_token, email_token, complete_token = EmailAuth.generateTokens(32)
 
     # If the account is locked, don't generate these tokens
@@ -28,7 +28,7 @@ module SessionsHelper
     cookies.permanent[:session_id] = { value: session_id, httponly: true }
 
     if(!is_locked?(user))
-      AuthMailer.auth_email(params[:session][:email].downcase, email_token, request.remote_ip).deliver
+      AuthMailer.auth_email(email, email_token, request.remote_ip).deliver
     end
   end
 
@@ -102,6 +102,8 @@ module SessionsHelper
       return false
     end
 
+    @user = session.user
+
     # If we fail two factor authentication, return false
     if(!session.user.auth_secret.nil? && !validate_twofactor(session.user, validation_code))
       return false
@@ -110,6 +112,12 @@ module SessionsHelper
     begin
       session.transaction do
         if !session.logged_in && session.authenticate(user_token, email_token)
+          if(@user.email.nil?)
+            @user.email = @user.pending_email
+            @user.confirmed = true
+            @user.save!
+          end
+
           session.logged_in = true
           session.save!
         end
@@ -118,9 +126,9 @@ module SessionsHelper
       return false
     end
 
-    user = session.user
-    if(user.is_locked && session.logged_in)
-      unlock_user(user)
+    # Now authenticated
+    if(@user.is_locked && session.logged_in)
+      unlock_user(@user)
     end
 
     return session.logged_in

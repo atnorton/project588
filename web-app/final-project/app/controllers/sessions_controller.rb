@@ -17,21 +17,42 @@ class SessionsController < ApplicationController
     redirect_to :new_session
   end
 
+  def confirm
+    if request.post?
+      @user = User.find_by(handle: params[:confirm][:user_handle])
+      if verify_recaptcha
+        auth_request(@user, @user.pending_email)
+        render 'create'
+      end
+    else
+      @user = User.find_by(handle: params[:handle])
+      if(@user.nil? || @user.confirmed)
+        redirect_to :new_session
+      end
+    end
+  end
+
   def create
     @user = User.find_by(email: params[:session][:email].downcase)
     if(@user==nil)
-      @user = User.new(email: params[:session][:email].downcase)
-      if(!@user.save)
-        flash[:danger] = "Invalid email address"
-        return render 'new'
-      end
+      # If the user is not registered, don't send the email but don't
+      # give any indication that are not member
+      @user_token = SecureRandom.base64(32)
+      session_id = SecureRandom.urlsafe_base64(32)
+
+      cookies.permanent[:user_token] = { value: @user_token, httponly: true }
+      cookies.permanent[:session_id] = { value: session_id, httponly: true }
+
+      # Make the timing of success and failure look the same
+      sleep(2)
+      return
     end
 
     if lock_account?(@user)
       lock(@user)
     end
 
-    auth_request(@user)
+    auth_request(@user, @user.email)
   end
 
   def unlock
