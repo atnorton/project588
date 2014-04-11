@@ -155,7 +155,6 @@ public class CameraTestActivity extends Activity
                         }
                         else{
 	                        String email_token = b.getString("email_token");
-	                        email_token = email_token.substring(0, email_token.length() - 2);
 	                        String address = b.getString("address");
 	                		myIntent.putExtra("email_token", email_token);
 	                		myIntent.putExtra("address", address);
