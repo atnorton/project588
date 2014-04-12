@@ -42,6 +42,11 @@ public class MainActivity extends Activity {
 
         String prefs_name = getString(R.string.prefs_name);
         SharedPreferences settings = getSharedPreferences(prefs_name, MODE_PRIVATE);
+        if (settings.getInt("radius", -1) == -1){
+        	SharedPreferences.Editor prefEditor = settings.edit();
+        	prefEditor.putInt("radius", 10);
+        	prefEditor.commit();
+        }
 
 	    Log.v("Auverify", settings.getAll().toString());
 	    
@@ -93,9 +98,21 @@ public class MainActivity extends Activity {
 			StartLoading();
 		    myAnimationLoaded = true;
 		}
-        
-		Bundle b = getIntent().getExtras();
+		
 		Intent intent = new Intent(this, EmailRetreiver.class);
+		Intent i = getIntent();
+		
+		// Mobile log in
+        if(i  !=null && i.getData() != null) {
+        	String path = i.getData().getPath();
+        	String user_token = path.substring(path.lastIndexOf("/")+1);
+        	intent.putExtra("user_token", user_token);
+        	Log.v("Auverify", "user_token: " + user_token);
+        	startService(intent);
+        	return;
+        }
+
+		Bundle b = i.getExtras();
 		if (b == null || !b.getBoolean("is_unlock")){
 			Log.d("Auverify", "Starting EmailRetreiver normally");
 	        startService(intent);
@@ -104,10 +121,10 @@ public class MainActivity extends Activity {
 			Log.d("Auverify", "Starting EmailRetreiver in unlock mode");
 			intent.putExtra("unlock_user_token", b.getString("unlock_user_token"));
 			startService(intent);
+			return;
 		}
 		
-		if (b == null || b.getBoolean("is_unlock") || b.getString("post_success") == null) return;
-
+		if (b == null || b.getString("post_success") == null) return;
 		if (b.getString("post_success").equals("success")){
 			CharSequence text = "Log in succeeded!";
 			int duration = Toast.LENGTH_LONG;

@@ -11,8 +11,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
 
-public class Settings extends ActionBarActivity {
+public class Settings extends ActionBarActivity implements OnSeekBarChangeListener {
+	
+	private int radius;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +41,21 @@ public class Settings extends ActionBarActivity {
 		edit_username.setText(username);
 		edit_password.setText(password);
 		edit_hostname.setText(hostname);
+		
+		
 
 	}
+	
+	@Override
+	public void onResume(){
+		super.onResume();
+		SharedPreferences settings = getSharedPreferences(getString(R.string.prefs_name), MODE_PRIVATE);
+		SeekBar bar = (SeekBar)findViewById(R.id.radiusBar);
+		bar.setProgress(settings.getInt("radius", 0));
+		updateRadiusText(settings.getInt("radius", 0));
+		bar.setOnSeekBarChangeListener(this);
+	}
+	
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -87,7 +105,33 @@ public class Settings extends ActionBarActivity {
 		editor.putString("uname", username.getText().toString());
 		editor.putString("pword", password.getText().toString());
 		editor.putString("hname", hostname.getText().toString());
+		
+		editor.putInt("radius", radius);
 		editor.commit();
+	}
+	
+	private void updateRadiusText(int progress){
+		TextView tv = (TextView)findViewById(R.id.radiusText);
+		if (progress == 200)
+			tv.setText("200+ miles");
+		else
+			tv.setText(progress + " miles");
+	}
+
+
+	@Override
+	public void onProgressChanged(SeekBar arg0, int progress, boolean arg2) {
+		updateRadiusText(progress);
+	}
+
+
+	@Override
+	public void onStartTrackingTouch(SeekBar arg0) {}
+
+
+	@Override
+	public void onStopTrackingTouch(SeekBar sb) {
+		radius = sb.getProgress();
 	}
 
 }

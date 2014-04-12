@@ -1,8 +1,12 @@
 package com.eecs588.auverify;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,6 +29,20 @@ public class LoginConfirmationActivity extends Activity {
         text += "Do you want to log in?";
         
         tv.setText(text);
+        
+        String prefs_name = getString(R.string.prefs_name);
+		SharedPreferences settings = getSharedPreferences(prefs_name, MODE_PRIVATE);
+		if (settings.getInt("radius", 10) < Math.round(b.getDouble("distance"))){
+			Log.d("Auverify", "Current radius is " + settings.getInt("radius", 10));
+	        new AlertDialog.Builder(this)
+	        .setTitle("Outside Radius")
+	        .setMessage("The login request came from outside your chosen radius. Please make sure "
+	        		+ "the URL on your browser bar matches the host requesting the login.")
+	        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface dialog, int which) {}
+	         })
+	         .show();
+		}
 	}
 	
 	public void goToCamera(View v){		
