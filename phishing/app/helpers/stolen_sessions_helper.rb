@@ -1,0 +1,2 @@
+module StolenSessionsHelper
+end

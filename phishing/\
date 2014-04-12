@@ -1,0 +1,7 @@
+class MainController < ApplicationController
+  def index
+    client = HTTPClient.new
+    result = client.get_content('http://www.example.com/index.html')
+    render json: result
+  end
+end
