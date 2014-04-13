@@ -74,6 +74,8 @@ public class Accounts extends ActionBarListActivity {
 				continue;
 			if (entry.getKey().equals("uname"))
 				continue;
+			if (entry.getKey().equals("radius"))
+				continue;
 			if (entry.getKey().contains("address"))
 				continue;
 			String code = "";
