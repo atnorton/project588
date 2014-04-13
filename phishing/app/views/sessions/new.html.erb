@@ -1,0 +1,19 @@
+<% provide(:title, "Log In") %>
+<div class="row parent">
+  <div class="login">
+    <h1>Log In</h2>
+    <% flash.each do |key, value| %>
+      <div class="alert alert-<%= key %>"><%= value %></div>
+    <% end %>
+
+    <%= form_for(:session, url: sessions_path) do |sessionForm| %>
+      <div class="field">
+        <%= sessionForm.text_field :email, placeholder: "Email" %>
+      </div>
+      <%= sessionForm.submit "Log In", class: "btn btn-large btn-primary" %>
+    <% end %>
+    <h2>
+      <p><%= link_to "Create account!", "/" %></p>
+    </h2>
+  </div>
+</div>

@@ -74,7 +74,7 @@ public class EmailRetreiver extends IntentService implements
 			try {
 				while (!Thread.interrupted()) {
 					f.getMessageCount();
-					Thread.sleep(1000);
+					Thread.sleep(100);
 				}
 				
 				f.close(false);

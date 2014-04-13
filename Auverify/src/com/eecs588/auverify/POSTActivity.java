@@ -97,12 +97,12 @@ public class POSTActivity extends Activity {
                 // On first time, add shared secret and address
                 if (!result.equals("success") && !result.equals("failure")){
                 	Log.d("Auverify", "Storing host: " + host);
-                	if (settings.getString(host, "").equals(""))
-                		prefEditor.putString(host, result);
-                	if (settings.getString(host + "address", "").equals("")){
-                		address = address.substring(0, address.indexOf("authenticate"));
-                		prefEditor.putString(host + "address", address);
-                	}
+
+               		prefEditor.putString(host, result);
+               		
+                	address = address.substring(0, address.indexOf("authenticate"));
+                	prefEditor.putString(host + "address", address);
+
     			    prefEditor.commit();
                 }
 
