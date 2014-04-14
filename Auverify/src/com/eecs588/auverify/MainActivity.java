@@ -119,7 +119,7 @@ public class MainActivity extends Activity {
 		}
 		else{
 			Log.d("Auverify", "Starting EmailRetreiver in unlock mode");
-			intent.putExtra("unlock_user_token", b.getString("unlock_user_token"));
+			intent.putExtra("user_token", b.getString("user_token"));
 			startService(intent);
 			return;
 		}

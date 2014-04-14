@@ -66,6 +66,7 @@ public class POSTActivity extends Activity {
 				SharedPreferences settings = getSharedPreferences(prefs_name, MODE_PRIVATE);
 			    SharedPreferences.Editor prefEditor = settings.edit();
 			    String shared_secret = settings.getString(host, "");
+			    Log.d("Auverify", "Address: " + address);
                 // Add your data
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 
@@ -96,14 +97,12 @@ public class POSTActivity extends Activity {
                 
                 // On first time, add shared secret and address
                 if (!result.equals("success") && !result.equals("failure")){
-                	Log.d("Auverify", "Storing host: " + host);
-
-               		prefEditor.putString(host, result);
-               		
-                	address = address.substring(0, address.indexOf("authenticate"));
-                	prefEditor.putString(host + "address", address);
-
-    			    prefEditor.commit();
+                	if (result.length() < 20){
+                		Log.d("Auverify", "Storing host: " + host);
+                		prefEditor.putString(host, result);
+                		prefEditor.putString(host + "address", address);
+                		prefEditor.commit();
+                	}
                 }
 
                 // Go back to main activity
@@ -115,7 +114,7 @@ public class POSTActivity extends Activity {
         			s = "success";
         		myIntent.putExtra("post_success", s);
         		myIntent.putExtra("is_unlock", is_unlock);
-        		myIntent.putExtra("unlock_user_token", user_token);
+        		myIntent.putExtra("user_token", user_token);
         		Log.d("Auverify", "Returning to MainActivity");
         		POSTActivity.this.startActivity(myIntent);
             } catch (ClientProtocolException e) {

@@ -300,8 +300,12 @@ public class EmailRetreiver extends IntentService implements
 			b.putString("email_token", email_token);
 			b.putString("address", address);
 			b.putDouble("distance", ipl.getDist());
-			if (userToken != null)
+			if (userToken != null){
 				b.putString("user_token", userToken);
+				Log.d("Auverify", "Adding user_token: " + userToken + "to LoginConfirmationActivity");
+			}
+			else
+				Log.d("Auverify", "Starting LoginConfirmationActivity without user_token");
 			dialogIntent.putExtras(b);
 			dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			getApplication().startActivity(dialogIntent);

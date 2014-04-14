@@ -149,6 +149,7 @@ public class CameraTestActivity extends Activity
                 		
                         if (is_unlock){
                         	String unlock_addr = settings.getString(host + "address", "");
+                        	unlock_addr = unlock_addr.substring(0, unlock_addr.indexOf("authenticate"));
                         	unlock_addr += "unlock";
                         	myIntent.putExtra("is_unlock", true);
                         	myIntent.putExtra("address", unlock_addr);

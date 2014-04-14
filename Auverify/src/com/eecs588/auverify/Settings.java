@@ -51,8 +51,9 @@ public class Settings extends ActionBarActivity implements OnSeekBarChangeListen
 		super.onResume();
 		SharedPreferences settings = getSharedPreferences(getString(R.string.prefs_name), MODE_PRIVATE);
 		SeekBar bar = (SeekBar)findViewById(R.id.radiusBar);
-		bar.setProgress(settings.getInt("radius", 0));
-		updateRadiusText(settings.getInt("radius", 0));
+		radius = settings.getInt("radius", 10);
+		bar.setProgress(radius);
+		updateRadiusText(radius);
 		bar.setOnSeekBarChangeListener(this);
 	}
 	
