@@ -1,1 +1,61 @@
-This is our 588 Project
+Email-Based Authentication Using Mobile Devices
+588 Project
+
+Repository organization:
+
+master/Auverify
+  This is the source for our Android App.
+
+  The main classes are:
+    master/Auverify/src/com/eecs588/auverify/Accounts.java
+    master/Auverify/src/com/eecs588/auverify/ActionBarListActivity.java
+    master/Auverify/src/com/eecs588/auverify/CameraPreview.java
+    master/Auverify/src/com/eecs588/auverify/CameraTestActivity.java
+    master/Auverify/src/com/eecs588/auverify/EmailRetreiver.java
+    master/Auverify/src/com/eecs588/auverify/LoginConfirmationActivity.java
+    master/Auverify/src/com/eecs588/auverify/MainActivity.java
+    master/Auverify/src/com/eecs588/auverify/POSTActivity.java
+    master/Auverify/src/com/eecs588/auverify/Settings.java
+
+master/appcompat
+  This is a library required by our mobile app added here for convenience.
+  
+master/emailauth
+  This is where our token generation and validation logic is stored. This is RubyGem that is then used by master/web-app/final-project.
+
+  The main ruby class:
+    master/emailauth/lib/emailauth/authenticator.rb
+
+master/phishing
+  This is the web application for which we demonstrate a phishing attack. This site is hosted at http://demophish-env-xyhfybqpje.elasticbeanstalk.com/.
+  
+  The main source code files are:
+    master/phishing/app/controllers/sessions_controller.rb
+      Where the connection is made to the actual site and the parsing and recording of tokens is done.
+      
+    master/phishing/app/views/sessions/create.html.erb
+    master/phishing/app/views/sessions/new.html.erb
+      The create.html.erb and new.html.erb are the views designed to look and feel like the real site.
+    
+    master/phishing/app/controllers/stolen_sessions_controller.rb
+      This is the controller to view stolen sessions.
+      
+    master/phishing/app/views/stolen_sessions/index.html.erb
+      View where an attacker can see all the sessions they have stolen.
+
+master/web-app/final-project
+  This is the web application for our demo system that uses our single sign on solution. The site is hosted at: https://www.authdemo.com.
+  
+  Main files:
+  
+    master/web-app/final-project/app/controllers/sessions_controller.rb
+    master/web-app/final-project/app/controllers/users_controller.rb
+    master/web-app/final-project/app/helpers/sessions_helper.rb
+    master/web-app/final-project/app/helpers/users_helper.rb
+    master/web-app/final-project/app/models/session.rb
+    master/web-app/final-project/app/models/user.rb
+    master/web-app/final-project/app/mailers/auth_mailer.rb
+    master/web-app/final-project/app/views/auth_mailer/auth_email.html.erb
+    master/web-app/final-project/app/views/layouts/_header.html.erb
+    master/web-app/final-project/app/views/sessions/*
+    master/web-app/final-project/app/views/users/*
