@@ -2,6 +2,9 @@
   <div class="alert alert-<%= key %>"><%= value %></div>
 <% end %>
 
+<div class="container text-center">
+  <h3>Didn't receive authentication email? Make sure you are <%= link_to "registered!", new_user_path %></h3>
+</div>
 <%= qr_code(@user_token) %>
 
 <% if mobile_user_agent? %>
