@@ -3,6 +3,8 @@ class User < ActiveRecord::Base
     handle
   end
 
+  attr_encrypted :auth_secret, :key => 'a secret key', :attribute => 'auth_token_encrypted'
+
   before_save {
     if(!self.email.nil?)
       self.email = email.downcase 
@@ -14,8 +16,7 @@ class User < ActiveRecord::Base
   has_many :sessions, dependent: :destroy
 
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
-  validates :email, uniqueness: true
-  validates :pending_email, presence: true, format: { with: VALID_EMAIL_REGEX }
+  validates :pending_email, presence: true, format: { with: VALID_EMAIL_REGEX }, uniqueness: true
   validates :name, presence: true, length: { maximum: 50}
 
   HANDLE_REGEX = /\A[a-zA-Z]+\z/

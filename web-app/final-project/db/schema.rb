@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140410141321) do
+ActiveRecord::Schema.define(version: 20140412145331) do
 
   create_table "sessions", force: true do |t|
     t.string   "session_key"
@@ -32,11 +32,11 @@ ActiveRecord::Schema.define(version: 20140410141321) do
     t.string   "session_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "auth_secret"
     t.datetime "is_locked"
     t.string   "handle"
     t.boolean  "confirmed"
     t.string   "pending_email"
+    t.string   "auth_token_encrypted"
   end
 
 end

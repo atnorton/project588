@@ -21,6 +21,7 @@ class UsersController < ApplicationController
   end
 
   def twofactor
+    return render json: @user.auth_secret
     if(@user.auth_secret.nil?)
       @user.assign_auth_secret
     end

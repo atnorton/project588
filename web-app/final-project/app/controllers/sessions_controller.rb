@@ -33,6 +33,7 @@ class SessionsController < ApplicationController
   end
 
   def create
+    clean_up
     @user = User.find_by(email: params[:session][:email].downcase)
     if(@user==nil)
       # If the user is not registered, don't send the email but don't

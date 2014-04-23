@@ -8,6 +8,11 @@ module SessionsHelper
     request.env["HTTP_USER_AGENT"].try :match, /(android)/i
   end
 
+  # Remove unconfirmed accounts older than 1 day
+  def clean_up
+    User.where("confirmed IS NULL AND created_at < ?", Time.now-1.day).destroy_all
+  end
+
   def auth_request(user, email)
     @user_token, email_token, complete_token = EmailAuth.generateTokens(32)
 
