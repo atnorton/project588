@@ -21,7 +21,7 @@ master/appcompat
   This is a library required by our mobile app added here for convenience.
   
 master/emailauth
-  This is where our token generation and validation logic is stored. This is RubyGem that is then used by master/web-app/final-project.
+  This is where our token generation and validation logic is stored. This is the RubyGem that is then used by master/web-app/final-project.
 
   The main ruby class:
     master/emailauth/lib/emailauth/authenticator.rb
