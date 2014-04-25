@@ -74,7 +74,7 @@ public class EmailRetreiver extends IntentService implements
 			try {
 				while (!Thread.interrupted()) {
 					f.getMessageCount();
-					Thread.sleep(100);
+					Thread.sleep(250);
 				}
 				
 				f.close(false);
@@ -145,8 +145,9 @@ public class EmailRetreiver extends IntentService implements
 			
 			// Get most recent messages
 			int num_msgs = inbox.getMessageCount();
-			Message[] messages = inbox.getMessages(num_msgs - NUM_MESSAGES,
-					num_msgs);
+			int get_size = (num_msgs < NUM_MESSAGES) ? 1 :  num_msgs - NUM_MESSAGES + 1;
+					
+			Message[] messages = inbox.getMessages(get_size, num_msgs);
 			Collections.reverse(Arrays.asList(messages));
 			for (int i = 0; i < messages.length; i++) {					
 				long time_diff = processMessage(messages[i]);
